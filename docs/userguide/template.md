@@ -9,7 +9,7 @@ This section provides instructions for **creating a completely new CausalIQ repo
 
 ### Create the new repo on GitHub
 
-- Create the new repo with name causaliq-newcapability specifying **this repository (i.e. causaliq-repo-template) as the template**. Fill in the description of the repo. The commit will hae a default message of "Initial Commit"
+- Create the new repo with name causaliq-newcapability specifying **this repository (i.e. causaliq-data) as the template**. Fill in the description of the repo. The commit will hae a default message of "Initial Commit"
 
 ### Clone the new repo locally and check that it works
 
@@ -28,16 +28,16 @@ scripts/setup-env -Install
 scripts/activate
 ```
 
-Check that the causaliq-repo-template CLI is working, check that all CI tests pass, and start up the local mkdocs webserver. There should be no errors  reported in any of these.
+Check that the causaliq-data CLI is working, check that all CI tests pass, and start up the local mkdocs webserver. There should be no errors  reported in any of these.
 
 ```text
-causaliq-repo-template --help
+causaliq-data --help
 scripts/check_ci
 mkdocs serve
 ```
 
 Enter **http://127.0.0.1:8000/** in a browser and check that the 
-causaliq-repo-template skeleton documentation is visible.
+causaliq-data skeleton documentation is visible.
 
 If all of the above works, this confirms that the code from the template repo is working successfully on your system.
 
@@ -45,12 +45,12 @@ If all of the above works, this confirms that the code from the template repo is
 
 In the IDE (e.g. VSCode) editor make the following GLOBAL changes to all files and folder names
 
-- replace **causaliq-repo-template** with **causaliq-newcapability** in all files (59 changes across 16 files)
-- replace **causaliq_repo_template** with **causaliq_newcapability** in all files (13 changes across 5 files)
-- replace **cqcrt** with **cqxyz** in all files (3 changes in 3 files) where "xyz" is some suggestive three-letter short form of "newcapability", e.g. "wrk" for "workflow". "cqxyz" will be the the CLI shortform name.
-- rename folder **src/causaliq_repo_template** to **src/causaliq_newcapability**
-- manually delete the **src/causaliq-repo-template.egg-info** package file
-- manually delete all folders under venv (which will contain references to the causaliq-repo-template)
+- replace **causaliq-data** with **causaliq-newcapability** in all files (59 changes across 16 files)
+- replace **causaliq_data** with **causaliq_newcapability** in all files (13 changes across 5 files)
+- replace **cqdat** with **cqxyz** in all files (3 changes in 3 files) where "xyz" is some suggestive three-letter short form of "newcapability", e.g. "wrk" for "workflow". "cqxyz" will be the the CLI shortform name.
+- rename folder **src/causaliq_data** to **src/causaliq_newcapability**
+- manually delete the **src/causaliq-data.egg-info** package file
+- manually delete all folders under venv (which will contain references to the causaliq-data)
 
 ⚠️ **Important**: Make sure to use underscores for Python package names (`causaliq_newcapability`) and hyphens for repo names (`causaliq-newcapability`)
 
@@ -72,7 +72,7 @@ scripts/check_ci
 mkdocs serve
 ```
 This should all work without any errors and the mkdocs should refer to causaliq-newcapability
-rather than causaliq-repo-template.
+rather than causaliq-data.
 
 This confirms that the package name has been successfully changed to "causaliq-newcapability". These changes can be commited to the new repo with message "refactor: package name changed to causaliq-newcapability"
 

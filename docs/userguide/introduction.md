@@ -1,6 +1,6 @@
 # CausalIQ Repo Template User Guide
 
-The causaliq-repo-template provides a starting point for new CausalIQ packages.
+The causaliq-data provides a starting point for new CausalIQ packages.
 It provides:
 
 - Standardised repo structure
