@@ -472,7 +472,7 @@ class Pandas(Data):
 
             # Obtain counts as newly instantiated NumPy 2-D array
 
-            counts = marginals.to_numpy(dtype=int, copy=True)
+            counts = marginals.to_numpy(dtype="int32", copy=True)
 
         else:
 
@@ -481,7 +481,9 @@ class Pandas(Data):
             marginals_dict = (
                 self.sample[node].value_counts().sort_index().to_dict()
             )
-            counts = array([[c] for c in marginals_dict.values()], dtype=int)
+            counts = array(
+                [[c] for c in marginals_dict.values()], dtype="int32"
+            )
 
             if values_reqd is True:
                 rowval = tuple(marginals_dict.keys())
