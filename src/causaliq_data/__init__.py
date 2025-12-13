@@ -2,7 +2,8 @@
 causaliq-data: Data handling for causal discovery and BN fitting.
 """
 
-from causaliq_data.data import BNFit, Data, DatasetType, VariableType
+from causaliq_data.data import Data, DatasetType, VariableType
+from causaliq_data.pandas import Pandas
 
 __version__ = "0.1.0"
 __author__ = "CausalIQ"
@@ -23,8 +24,8 @@ __all__ = [
     "__author__",
     "__email__",
     "VERSION",
-    "BNFit",
     "Data",
     "DatasetType",
     "VariableType",
+    "Pandas",
 ]

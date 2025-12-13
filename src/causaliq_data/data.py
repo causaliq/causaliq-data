@@ -1,26 +1,21 @@
 """Abstract data interfaces for causal discovery and BN fitting."""
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from typing import Any, Dict, Optional, Tuple
 
 import numpy as np
-from causaliq_core.utils.random import (  # type: ignore[import-untyped]
-    RandomIntegers,
-)
+from causaliq_core.bn.bnfit import BNFit
+from causaliq_core.utils.random import RandomIntegers
 from strenum import StrEnum
 
 
 class DatasetType(StrEnum):
-    """Type of dataset based on variable types."""
-
     CATEGORICAL = "categorical"  # all categorical variables
     CONTINUOUS = "continuous"  # all float variables
     MIXED = "mixed"  # mixed categorical, float or numeric
 
 
 class VariableType(StrEnum):
-    """Data type for individual variables."""
-
     INT16 = "int16"
     INT32 = "int32"
     INT64 = "int64"
@@ -29,118 +24,41 @@ class VariableType(StrEnum):
     CATEGORY = "category"
 
 
-class BNFit(ABC):
-    """
-    Minimal interface for Bayesian Network parameter estimation.
-
-    This interface provides the essential methods required for fitting
-    conditional probability tables (CPT) and linear Gaussian models
-    in Bayesian Networks.
-    """
-
-    @abstractmethod
-    def marginals(
-        self, node: str, parents: Dict, values_reqd: bool = False
-    ) -> Tuple:
-        """
-        Return marginal counts for a node and its parents.
-
-        :param str node: node for which marginals required
-        :param dict parents: {node: parents} parents of non-orphan nodes
-        :param bool values_reqd: whether parent and child values required
-
-        :raises TypeError: for bad argument types
-
-        :returns tuple: of counts, and optionally, values:
-                        - ndarray counts: 2D, rows=child, cols=parents
-                        - int maxcol: maximum number of parental values
-                        - tuple rowval: child values for each row
-                        - tuple colval: parent combo (dict) for each col
-        """
-        pass
-
-    @abstractmethod
-    def values(self, nodes: Tuple[str, ...]) -> np.ndarray:
-        """
-        Return the (float) values for the specified set of nodes.
-
-        Suitable for passing into e.g. linearRegression fitting function
-
-        :param tuple nodes: nodes for which data required
-
-        :raises TypeError: if bad arg type
-        :raises ValueError: if bad arg value
-
-        :returns ndarray: Numpy array of values, each column for a node
-        """
-        pass
-
-    @property
-    @abstractmethod
-    def N(self) -> int:
-        """
-        Total sample size.
-
-        :returns int: current sample size being used
-        """
-        pass
-
-    @property
-    @abstractmethod
-    def node_values(self) -> Dict[str, Dict]:
-        """
-        Node value counts for categorical variables.
-
-        :returns dict: values and their counts of categorical nodes
-                       in sample {n1: {v1: c1, v2: ...}, n2 ...}
-        """
-        pass
-
-
 class Data(BNFit):
-    """
-    Top level data object for structure learning.
+    """Top level data object that implements BNFit interface.
 
     Extends BNFit interface with additional methods needed for
     causal structure learning algorithms.
 
-    :param DataFrame/None df: data supplied as Pandas DataFrame
-    :param BN/None bn: data specified as BN (Oracle data)
-    :param int/None N: sample size
+    Attributes:
+        elapsed: Elapsed time for operations.
+        order: Order in which nodes should be processed.
+        ext_to_orig: Map from external to original names.
+        orig_to_ext: Map from original to external names.
+        dstype: Overall dataset type (categorical/continuous/mixed).
 
-    :ivar tuple nodes: internal (i.e. original) node names
-    :ivar tuple order: order in which nodes should be processed
-    :ivar dict ext_to_orig: map from external to original names
-    :ivar dict orig_to_ext: map from original to external names
-    :ivar int N: current sample size being used by the algorithm
-    :ivar dict node_types: node types {n1: t1, n2: ....}
-
-    :raises TypeError: if bad types supplied
+    Properties (from BNFit):
+        nodes: Internal (i.e. original) node names.
+        N: Current sample size being used by the algorithm.
+        node_types: Node types, e.g. {node1: type1, node2: type2}.
+        node_values: Values and their counts of categorical nodes.
+        sample: Access to underlying data sample.
     """
 
     elapsed: float = 0.0
-    nodes: Tuple[str, ...]
-    order: Tuple[int, ...]
-    ext_to_orig: Dict[str, str]
-    orig_to_ext: Dict[str, str]
-    node_types: Dict[str, str]
-    dstype: str
 
     def __init__(self) -> None:
         pass
 
-    def _update_sample(self) -> None:
-        """Update sample - implemented in subclasses."""
-        pass
-
     def set_order(self, order: Tuple[str, ...]) -> None:
-        """
-        Set the process order of the nodes to specified one.
+        """Set the process order of the nodes to specified one.
 
-        :param tuple order: new process order
+        Args:
+            order: New process order.
 
-        :raises TypeError: for bad argument types
-        :raises ValueError: for bad argument values
+        Raises:
+            TypeError: For bad argument types.
+            ValueError: For bad argument values.
         """
         if not isinstance(order, tuple) or any(
             not isinstance(n, str) for n in order
@@ -157,21 +75,22 @@ class Data(BNFit):
             self._update_sample()
 
     def get_order(self) -> Tuple[str, ...]:
-        """
-        Get the current process order.
+        """Get the current process order.
 
-        :returns tuple: of external names of nodes in process order
+        Returns:
+            External names of nodes in process order.
         """
         return tuple(self.orig_to_ext[self.nodes[i]] for i in self.order)
 
     def randomise_order(self, seed: int) -> None:
-        """
-        Randomise the process order of the nodes.
+        """Randomise the process order of the nodes.
 
-        :param int seed: randomisation seed
+        Args:
+            seed: Randomisation seed.
 
-        :raises TypeError: for bad argument types
-        :raises ValueError: for bad argument values
+        Raises:
+            TypeError: For bad argument types.
+            ValueError: For bad argument values.
         """
         if not isinstance(seed, int):
             raise TypeError("Data.randomise_order() bad arg type")
@@ -220,41 +139,196 @@ class Data(BNFit):
         seed: Optional[int] = None,
         random_selection: bool = False,
     ) -> None:
-        """
-        Set current working sample size.
+        """Set current working sample size.
 
-        :param int N: current working sample size
-        :param int/None seed: seed for row order randomisation if reqd
-        :param bool random_selection: whether rows selected is also
-                                      randomised
+        Args:
+            N: Current working sample size.
+            seed: Seed for row order randomisation if required.
+            random_selection: Whether row selection is also randomised.
 
-        :raises TypeError: if bad argument type
-        :raises ValueError: if bad argument value
+        Raises:
+            TypeError: If bad argument type.
+            ValueError: If bad argument value.
         """
         pass
 
     @abstractmethod
     def randomise_names(self, seed: Optional[int]) -> None:
+        """Randomise the node names that the learning algorithm uses.
+
+        Allows sensitivity to node names to be assessed.
+
+        Args:
+            seed: Randomisation seed. If None, names revert back to
+                original names.
+
+        Raises:
+            TypeError: For bad argument types.
+            ValueError: For bad argument values.
         """
-        Randomise the node names that the learning algorithm uses.
+        pass
 
-        So sensitivity to these names can be assessed.
+    @abstractmethod
+    def _update_sample(
+        self,
+        old_N: Optional[int] = None,
+        old_ext_to_orig: Optional[Dict] = None,
+    ) -> None:
+        """Update the sample after changes to N or node ordering.
 
-        :param int/None seed: randomisation seed (if None, names revert
-                              back to original names)
+        Args:
+            old_N: Previous sample size.
+            old_ext_to_orig: Previous external to original name mapping.
+        """
+        pass
 
-        :raises TypeError: for bad argument types
-        :raises ValueError: for bad argument values
+    @abstractmethod
+    def marginals(
+        self, node: str, parents: Dict, values_reqd: bool = False
+    ) -> Tuple:
+        """Return marginal counts for a node and its parents.
+
+        Args:
+            node: Node for which marginals required.
+            parents: Dictionary {node: parents} for non-orphan nodes.
+            values_reqd: Whether parent and child values required.
+
+        Returns:
+            Tuple of counts, and optionally, values:
+
+            - ndarray counts: 2D array, rows=child, cols=parents
+            - int maxcol: Maximum number of parental values
+            - tuple rowval: Child values for each row
+            - tuple colval: Parent combo (dict) for each col
+
+        Raises:
+            TypeError: For bad argument types.
+        """
+        pass
+
+    @abstractmethod
+    def values(self, nodes: Tuple[str, ...]) -> np.ndarray:
+        """Return the (float) values for specified nodes.
+
+        Suitable for passing into e.g. linear regression fitting.
+
+        Args:
+            nodes: Nodes for which data required.
+
+        Returns:
+            Numpy array of values, each column for a node.
+
+        Raises:
+            TypeError: If bad argument type.
+            ValueError: If bad argument value.
         """
         pass
 
     @abstractmethod
     def as_df(self) -> Any:
-        """
-        Return the data as a Pandas dataframe.
+        """Return the data as a Pandas dataframe.
 
         Returns data with current sample size and column order.
 
-        :returns DataFrame: data as Pandas
+        Returns:
+            Data as Pandas DataFrame.
+        """
+        pass
+
+    # BNFit interface properties
+
+    @property
+    @abstractmethod
+    def nodes(self) -> Tuple[str, ...]:
+        """Column names in the dataset.
+
+        Returns:
+            Tuple of node names (column names) in the dataset.
+        """
+        pass
+
+    @nodes.setter
+    @abstractmethod
+    def nodes(self, value: Tuple[str, ...]) -> None:
+        """Set column names."""
+        pass
+
+    @property
+    @abstractmethod
+    def sample(self) -> Any:
+        """Access to underlying data sample.
+
+        Returns:
+            The underlying DataFrame or data structure for direct access.
+            Used for operations like .unique() on columns.
+        """
+        pass
+
+    @sample.setter
+    @abstractmethod
+    def sample(self, value: Any) -> None:
+        """Set the underlying data sample."""
+        pass
+
+    @property
+    @abstractmethod
+    def node_types(self) -> Dict[str, str]:
+        """Node type mapping for each variable.
+
+        Returns:
+            Dictionary mapping node names to their types.
+            Format: {node: 'category' | 'continuous'}
+        """
+        pass
+
+    @node_types.setter
+    @abstractmethod
+    def node_types(self, value: Dict[str, str]) -> None:
+        """Set node type mapping."""
+        pass
+
+    @property
+    @abstractmethod
+    def N(self) -> int:
+        """Total sample size.
+
+        Returns:
+            Current sample size being used.
+        """
+        pass
+
+    @N.setter
+    @abstractmethod
+    def N(self, value: int) -> None:
+        """Set total sample size."""
+        pass
+
+    @property
+    @abstractmethod
+    def node_values(self) -> Dict[str, Dict]:
+        """Node value counts for categorical variables.
+
+        Returns:
+            Values and their counts of categorical nodes in sample.
+            Format: {node1: {val1: count1, val2: count2, ...}, ...}
+        """
+        pass
+
+    @node_values.setter
+    @abstractmethod
+    def node_values(self, value: Dict[str, Dict]) -> None:
+        """Set node value counts."""
+        pass
+
+    @abstractmethod
+    def write(self, filename: str) -> None:
+        """Write data to file.
+
+        Args:
+            filename: Path to output file.
+
+        Raises:
+            TypeError: If filename is not a string.
+            FileNotFoundError: If output directory doesn't exist.
         """
         pass
