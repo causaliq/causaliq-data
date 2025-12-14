@@ -3,6 +3,7 @@ causaliq-data: Data handling for causal discovery and BN fitting.
 """
 
 from causaliq_data.data import Data, DatasetType, VariableType
+from causaliq_data.numpy import NumPy
 from causaliq_data.pandas import Pandas
 
 __version__ = "0.1.0"
@@ -28,4 +29,5 @@ __all__ = [
     "DatasetType",
     "VariableType",
     "Pandas",
+    "NumPy",
 ]

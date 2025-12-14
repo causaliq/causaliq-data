@@ -11,14 +11,14 @@ def runner():
     return CliRunner()
 
 
-# Check version printed correctly
+# Test CLI version option displays version information
 def test_cli_version(runner):
     result = runner.invoke(cli, ["--version"])
     assert result.exit_code == 0
     assert "version" in result.output.lower()
 
 
-# check help printed correctly
+# Test CLI help option displays usage information
 def test_cli_help(runner):
     result = runner.invoke(cli, ["--help"])
     assert result.exit_code == 0
