@@ -1,4 +1,4 @@
-# Template CLI
+# Data CLI
 
 This template repo provides a simple template CLI as a starting point for CLI implementations.
 

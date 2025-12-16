@@ -1,4 +1,4 @@
-# [CausalIQ Repo Template]
+# 🔢  CausalIQ Data
 
 <!-- add in coverage and CI badges when repo is public -->
 
@@ -6,16 +6,27 @@
 
 ## Welcome
 
-Welcome to the documentation for the [**CausalIQ Repo Template**] — part of the [CausalIQ ecosystem](https://causaliq.org) for intelligent causal discovery. 
+Welcome to the documentation for **CausalIQ Data** — part of the [CausalIQ ecosystem](https://causaliq.org) for intelligent causal discovery. 
 
-The [CausalIQ Repo template] provides [a
-standardised template for *new* CausalIQ repos.]
+The CausalIQ Data project provides the data-related capabilities that causal
+discovery requires. 
 
 ---
 
 ## Overview
 
-[CausalIQ Repo template] is designed for [... more details about functionality].
+**CausalIQ Data** provides:
+
+ -  ⚡ **data import and caching** - data can be imported from standard 
+tabular formats (comma-separated variables) and cached for high performance
+ - 🎯 **graph scoring** - provide graph score derived from the data which is
+ the objective function used by *score-based* structure learning algorithms. This is 
+ based upon how likely the data is to be seen for a given graph, typically
+ modified by a penalty for complex graphs (e.g. BIC score), or modified
+ by a prior belief about the graph strcuture (e.g. BDeu score)
+ - 🔗 **independence tests** - used to determine conditional independence tests
+ which are intrinsic to the operataion of *constraint-based* structure
+ learning algorithms.
 
 This site provides detailed documentation, including: development roadmap, user guide, architectural vision, design notes, and API reference for users and contributors.
 

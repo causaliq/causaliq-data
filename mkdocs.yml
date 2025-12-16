@@ -46,13 +46,16 @@ nav:
   - Roadmap: roadmap.md
   - User Guide:
     - User Guide Introduction: userguide/introduction.md
-    - Creating a new repo: userguide/template.md
   - Architecture: 
     - Architectural Overview: architecture/overview.md
     - Design Notes: 
-      - Example: architecture/example_design_note.md
+      - BNFit Interface: architecture/bnfit_interface_spec.md
   - API Reference: 
     - API Overview: api/overview.md
+    - Data (Base Class): api/data.md
+    - Pandas Adapter: api/pandas.md
+    - NumPy Adapter: api/numpy.md
+    - Oracle Adapter: api/oracle.md
     - CLI: api/cli.md
 
 plugins:

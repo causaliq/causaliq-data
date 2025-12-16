@@ -1,32 +1,23 @@
-# CausalIQ Repo Template - Development Roadmap
+# CausalIQ Data - Development Roadmap
 
-**Last updated**: November 21, 2025  
+**Last updated**: December 16, 2025  
 
 This project roadmap fits into the [overall ecosystem roadmap](https:/https://causaliq.org/projects/ecosystem_roadmap/)
 
-## 🎯 Current Release
+## 🚧  Under development
 
-**✅ BACKGROUND**: 1.1 Maintenance
-
-Commits:
-
-- `4a1b021` fix: change template shorthand CLI command from "crt" to "cqdat"
-- `67cef98` fix: default CI testing to just Python 3.11 on Ubuntu
+- none
 
 ---
 
-## ✅ Previous Releases
+## ✅ Implemented Features
+
+- **Release v0.1.0 - Foundation Data** [December 2025]: CausalIQ compliant Data provider interface and concrete implementations with data store internally as pandas Dataframes or Numpy 2D arrays.
 
 *See Git commit history for detailed implementation progress*
 
-- 📋 **1.0 Foundation**: ready for use as template for new CausalIQ repos
 
+## 🛣️ Upcoming Releases
 
-## 🛣️ Upcoming Implementation
-
-### Release 1.1: Maintenance
-**Key Deliverables**: Maintenance 
-
-**Commit 1.1.0: Maintenance Task**
-
-- [ ] **maintenance** - as required
+- **Release v0.2.0 - Score** [December 2025]: Support for BIC and BDeu score functions
+- **Release v0.3.0 - CI Tests** [December 2025]: Conditional Independence
