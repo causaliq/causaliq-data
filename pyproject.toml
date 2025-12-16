@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "causaliq-data"
 dynamic = ["version"]
-description = "A template for CausalIQ repos"
+description = "Data caching, scoring and testing for causal discovery"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [

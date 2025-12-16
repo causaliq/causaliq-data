@@ -39,7 +39,7 @@ theme:
 
 
 extra_css:
-  - http://causaliq.org/css/mkdocs.css
+  - https://raw.githubusercontent.com/causaliq/causaliq/main/docs/css/mkdocs.css
 
 nav:
   - Home: index.md
