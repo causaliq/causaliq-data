@@ -448,7 +448,7 @@ class NumPy(Data):
             # Unpack integers back into their combinations of values using
             # the same multipliers used to pack them into one integer
 
-            combos = empty((len(packed), len(multipliers)), dtype=int)
+            combos: ndarray = empty((len(packed), len(multipliers)), dtype=int)
             for jj, r in enumerate(reversed(multipliers)):
                 combos[:, len(multipliers) - jj - 1] = packed // r
                 packed = packed % r
