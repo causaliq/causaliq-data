@@ -28,10 +28,10 @@ pip install causaliq-data
 Currently implemented:
 
 - **Release v0.1.0 - Foundation Data**: CausalIQ compliant Data provider interface and concrete implementations with data store internally as pandas Dataframes or Numpy 2D arrays.
+- **Release v0.2.0 - Score Functions**: Comprehensive scoring framework for Bayesian networks and DAGs with entropy-based (BIC, AIC, log-likelihood), Bayesian (BDE, K2, BDJ, BDS), and Gaussian (BGE, BIC-g, loglik-g) score types.
 
 Planned releases (supporting legacy functionality):
 
-- **Release v0.2.0 - Score**: Support for BIC and BDeu score functions
 - **Release v0.3.0 - CI Tests**: Conditional Independence
 
 ## Upcoming Key Innovations
