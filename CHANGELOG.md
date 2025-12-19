@@ -25,6 +25,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 - Nothing yet
 
+## [0.2.0] - 2025-12-19
+
+### Added
+- **Score Functions Module**: Comprehensive scoring framework for Bayesian networks and DAGs
+- **Multiple Score Types**: Support for entropy-based (BIC, AIC, log-likelihood), Bayesian (BDE, K2, BDJ, BDS), and Gaussian (BGE, BIC-g, loglik-g) scores
+- **Network Evaluation**: Complete DAG and Bayesian Network scoring with per-node breakdowns via `dag_score()` and `bn_score()`
+- **Node-Level Scoring**: Independent evaluation of nodes with their parents using `node_score()`
+- **Specialized Score Functions**: Individual scoring functions for categorical and Gaussian data
+- **Parameter Validation**: Automatic parameter checking and default value assignment via `check_score_params()`
+- **Score Documentation**: Complete API documentation for all scoring functions
+- **Architecture Integration**: Score functions integrated into overall causaliq-data architecture
+
+### Changed
+- Enhanced API documentation structure to include score module
+- Updated navigation and overview documentation to cover scoring capabilities
+
 ## [0.1.0] - 2025-12-16
 
 ### Added
