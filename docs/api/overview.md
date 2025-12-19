@@ -44,6 +44,16 @@ A specialized adapter for generating synthetic data from known Bayesian Networks
 - **Testing Support**: Ideal for algorithm validation and benchmarking
 - **Simulation Control**: Flexible sample size management for experiments
 
+### [`Score`](score.md) - Scoring Functions for Causal Structure Learning
+
+A comprehensive module providing scoring functions for evaluating Bayesian networks and DAGs:
+
+- **Multiple Score Types**: Support for entropy-based, Bayesian, and Gaussian scoring methods
+- **Categorical Scoring**: BIC, AIC, log-likelihood, BDE, K2, and other Bayesian scores
+- **Gaussian Scoring**: BGE, Gaussian BIC, and Gaussian log-likelihood for continuous data
+- **Network Evaluation**: Complete DAG and Bayesian Network scoring with per-node breakdowns
+- **Parameter Validation**: Automatic parameter checking and default value assignment
+
 ## Common Patterns
 
 ### Data Loading

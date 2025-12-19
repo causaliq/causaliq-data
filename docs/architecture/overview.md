@@ -83,6 +83,25 @@ The architecture provides comprehensive **data randomisation features** essentia
 - Provides conditional independence tests for constraint-based algorithms
 - Enables stability testing through randomisation features
 
+### Score Function Architecture
+
+The `score` module provides a comprehensive **scoring framework** for evaluating Bayesian network structures:
+
+#### Multi-Type Score Support
+- **Categorical Scores**: BIC, AIC, log-likelihood, BDE, K2, and other Bayesian methods
+- **Gaussian Scores**: BGE (Bayesian Gaussian Equivalent), Gaussian BIC, and continuous log-likelihood
+- **Mixed Data**: Automatic score type selection based on variable types
+
+#### Modular Design
+- **Node-Level Scoring**: Independent evaluation of individual nodes with their parents
+- **Network-Level Scoring**: Complete DAG and Bayesian Network evaluation with per-node breakdowns
+- **Parameter Validation**: Centralized parameter checking and default assignment
+
+#### Performance Considerations
+- **Efficient Counting**: Leverages data adapter counting mechanisms for marginal distributions
+- **Vectorized Operations**: Uses NumPy operations for mathematical computations
+- **Memory Efficiency**: Minimal data copying during score computation
+
 ### CausalIQ Workflow Integration
 - Supports experimental workflows requiring data randomization
 - Provides consistent interfaces for batch processing
