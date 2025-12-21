@@ -29,10 +29,13 @@ Currently implemented:
 
 - **Release v0.1.0 - Foundation Data**: CausalIQ compliant Data provider interface and concrete implementations with data store internally as pandas Dataframes or Numpy 2D arrays.
 - **Release v0.2.0 - Score Functions**: Comprehensive scoring framework for Bayesian networks and DAGs with entropy-based (BIC, AIC, log-likelihood), Bayesian (BDE, K2, BDJ, BDS), and Gaussian (BGE, BIC-g, loglik-g) score types.
+- **Release v0.3.0 - Independence Tests**: Statistical independence testing with Chi-squared and Mutual Information tests for conditional independence (X ⊥ Y | Z), supporting multiple data sources and designed for constraint-based algorithms. Includes data preprocessing utilities for cleaning datasets before causal discovery.
 
-Planned releases (supporting legacy functionality):
+Planned releases (supporting new functionality):
 
-- **Release v0.3.0 - CI Tests**: Conditional Independence
+- none planned yet
+
+
 
 ## Upcoming Key Innovations
 
@@ -79,7 +82,23 @@ to do before making any changes.
 ## Quick Start
 
 ```python
-# To be completed - example will score a known graph
+import pandas as pd
+from causaliq_data.pandas import Pandas
+from causaliq_data.indep import indep
+from causaliq_data.score import node_score
+
+# Load your data
+df = pd.read_csv("your_dataset.csv")
+data = Pandas(df)
+
+# Test independence: Is X independent of Y given Z?
+result = indep("X", "Y", ["Z"], data.as_df(), types=["mi", "x2"])
+p_value = result.loc["p_value", "mi"]
+print(f"Independence test p-value: {p_value}")
+
+# Score a node with its parents
+score = node_score("Y", ["X", "Z"], data, "bic")
+print(f"BIC score: {score}")
 ```
 
 ## Getting started

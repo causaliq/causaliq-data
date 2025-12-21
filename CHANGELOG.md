@@ -25,7 +25,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 - Nothing yet
 
-## [0.2.0] - 2025-12-19
+## [0.3.0 Independence Tests] - 2025-12-21
+
+### Added
+- **Independence Testing Module**: Comprehensive statistical independence testing for causal discovery
+- **Multiple Test Statistics**: Chi-squared (X²) and Mutual Information (MI) tests for independence
+- **Conditional Independence**: Support for testing X ⊥ Y | Z with arbitrary conditioning variable sets
+- **Flexible Data Sources**: Independence tests work with pandas DataFrames, CSV files, or Bayesian Network parameters
+- **Statistical Validation**: Robust argument checking, error handling, and p-value computation
+- **Test Functions**: Core `indep()` function and `check_test_params()` validation utilities
+- **Integration Ready**: Designed for constraint-based algorithms (PC, FCI) and structure learning validation
+- **Comprehensive Testing**: Complete unit test coverage for internal functions and error cases
+- **Independence Documentation**: Full API reference with usage examples and statistical details
+- **Preprocess Module**: Data preprocessing utilities for causal discovery workflows
+
+### Changed
+- Enhanced API documentation to include independence testing module
+- Updated architecture documentation to cover independence testing framework
+- Improved navigation structure with independence testing integration
+- Extended test coverage to 100% across all modules
+
+### Fixed
+- Improved error handling and validation in independence test functions
+
+## [0.2.0 Score Functions] - 2025-12-19
 
 ### Added
 - **Score Functions Module**: Comprehensive scoring framework for Bayesian networks and DAGs
@@ -41,7 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced API documentation structure to include score module
 - Updated navigation and overview documentation to cover scoring capabilities
 
-## [0.1.0] - 2025-12-16
+## [0.1.0 Data Foundations] - 2025-12-16
 
 ### Added
 - **Core Data Architecture**: Plug-in data adapter architecture with abstract `Data` base class
