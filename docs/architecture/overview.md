@@ -83,6 +83,26 @@ The architecture provides comprehensive **data randomisation features** essentia
 - Provides conditional independence tests for constraint-based algorithms
 - Enables stability testing through randomisation features
 
+### Independence Testing Framework
+
+The `indep` module provides **statistical independence testing capabilities** essential for constraint-based causal discovery:
+
+#### Test Statistics and Methods
+- **Multiple Test Types**: Chi-squared (X²) and Mutual Information (MI) statistical tests
+- **Conditional Independence**: Support for testing X ⊥ Y | Z with arbitrary conditioning variable sets
+- **Asymptotic Theory**: Both test statistics are asymptotically χ² distributed under the null hypothesis
+
+#### Data Source Flexibility  
+- **DataFrame Integration**: Direct testing on pandas DataFrame data
+- **File System Support**: Automatic data loading from CSV files
+- **Bayesian Network Parameters**: Synthetic testing using known conditional probability tables
+- **Unified Interface**: Consistent API regardless of data source
+
+#### Computational Efficiency
+- **Contingency Table Optimization**: Efficient construction and manipulation of multi-dimensional contingency tables
+- **Batch Processing**: Simultaneous computation of multiple test statistics
+- **Memory Management**: Minimal data copying during statistical computations
+
 ### Score Function Architecture
 
 The `score` module provides a comprehensive **scoring framework** for evaluating Bayesian network structures:

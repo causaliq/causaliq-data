@@ -54,6 +54,26 @@ A comprehensive module providing scoring functions for evaluating Bayesian netwo
 - **Network Evaluation**: Complete DAG and Bayesian Network scoring with per-node breakdowns
 - **Parameter Validation**: Automatic parameter checking and default value assignment
 
+### [`Independence Testing`](indep.md) - Probabilistic Independence Tests
+
+Statistical independence testing functionality for constraint-based causal discovery:
+
+- **Multiple Test Statistics**: Chi-squared (X²) and Mutual Information (MI) tests
+- **Conditional Independence**: Support for testing X ⊥ Y | Z with arbitrary conditioning sets
+- **Flexible Data Sources**: Works with pandas DataFrames, data files, or Bayesian Network parameters
+- **Robust Validation**: Comprehensive argument checking and error handling
+- **Integration Ready**: Designed for use in PC, FCI, and other constraint-based algorithms
+
+### [`Preprocess`](preprocess.md) - Data Preprocessing Utilities
+
+Data cleaning and preparation utilities for Bayesian Network workflows:
+
+- **Single-Valued Variable Removal**: Automatic detection and removal of constant variables
+- **Network Restructuring**: Intelligent BN reconstruction after variable removal
+- **Data Validation**: Ensures minimum variable requirements for meaningful analysis
+- **Categorical Optimization**: Proper type handling for downstream operations
+- **Integration Support**: Seamless workflow integration with data adapters and structure learning
+
 ## Common Patterns
 
 ### Data Loading

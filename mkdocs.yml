@@ -56,6 +56,8 @@ nav:
     - Pandas Adapter: api/pandas.md
     - NumPy Adapter: api/numpy.md
     - Oracle Adapter: api/oracle.md
+    - Independence Testing: api/indep.md
+    - Preprocess: api/preprocess.md
     - Score Functions: api/score.md
     - CLI: api/cli.md
 
