@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -859,6 +859,39 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#score-scoring-functions-for-causal-structure-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Score - Scoring Functions for Causal Structure Learning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#independence-testing-probabilistic-independence-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Independence Testing - Probabilistic Independence Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#preprocess-data-preprocessing-utilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preprocess - Data Preprocessing Utilities
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1114,6 +1147,90 @@
   
   
     <li class="md-nav__item">
+      <a href="../indep/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Independence Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../preprocess/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Preprocess
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../score/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Score Functions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../cli/" class="md-nav__link">
         
   
@@ -1231,6 +1348,39 @@
     <span class="md-ellipsis">
       
         Oracle - Synthetic Data Generator
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#score-scoring-functions-for-causal-structure-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Score - Scoring Functions for Causal Structure Learning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#independence-testing-probabilistic-independence-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Independence Testing - Probabilistic Independence Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#preprocess-data-preprocessing-utilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preprocess - Data Preprocessing Utilities
       
     </span>
   </a>
@@ -1418,6 +1568,33 @@
 <li><strong>Testing Support</strong>: Ideal for algorithm validation and benchmarking</li>
 <li><strong>Simulation Control</strong>: Flexible sample size management for experiments</li>
 </ul>
+<h3 id="score-scoring-functions-for-causal-structure-learning"><a href="../score/"><code>Score</code></a> - Scoring Functions for Causal Structure Learning<a class="headerlink" href="#score-scoring-functions-for-causal-structure-learning" title="Permanent link">&para;</a></h3>
+<p>A comprehensive module providing scoring functions for evaluating Bayesian networks and DAGs:</p>
+<ul>
+<li><strong>Multiple Score Types</strong>: Support for entropy-based, Bayesian, and Gaussian scoring methods</li>
+<li><strong>Categorical Scoring</strong>: BIC, AIC, log-likelihood, BDE, K2, and other Bayesian scores</li>
+<li><strong>Gaussian Scoring</strong>: BGE, Gaussian BIC, and Gaussian log-likelihood for continuous data</li>
+<li><strong>Network Evaluation</strong>: Complete DAG and Bayesian Network scoring with per-node breakdowns</li>
+<li><strong>Parameter Validation</strong>: Automatic parameter checking and default value assignment</li>
+</ul>
+<h3 id="independence-testing-probabilistic-independence-tests"><a href="../indep/"><code>Independence Testing</code></a> - Probabilistic Independence Tests<a class="headerlink" href="#independence-testing-probabilistic-independence-tests" title="Permanent link">&para;</a></h3>
+<p>Statistical independence testing functionality for constraint-based causal discovery:</p>
+<ul>
+<li><strong>Multiple Test Statistics</strong>: Chi-squared (X²) and Mutual Information (MI) tests</li>
+<li><strong>Conditional Independence</strong>: Support for testing X ⊥ Y | Z with arbitrary conditioning sets</li>
+<li><strong>Flexible Data Sources</strong>: Works with pandas DataFrames, data files, or Bayesian Network parameters</li>
+<li><strong>Robust Validation</strong>: Comprehensive argument checking and error handling</li>
+<li><strong>Integration Ready</strong>: Designed for use in PC, FCI, and other constraint-based algorithms</li>
+</ul>
+<h3 id="preprocess-data-preprocessing-utilities"><a href="../preprocess/"><code>Preprocess</code></a> - Data Preprocessing Utilities<a class="headerlink" href="#preprocess-data-preprocessing-utilities" title="Permanent link">&para;</a></h3>
+<p>Data cleaning and preparation utilities for Bayesian Network workflows:</p>
+<ul>
+<li><strong>Single-Valued Variable Removal</strong>: Automatic detection and removal of constant variables</li>
+<li><strong>Network Restructuring</strong>: Intelligent BN reconstruction after variable removal</li>
+<li><strong>Data Validation</strong>: Ensures minimum variable requirements for meaningful analysis</li>
+<li><strong>Categorical Optimization</strong>: Proper type handling for downstream operations</li>
+<li><strong>Integration Support</strong>: Seamless workflow integration with data adapters and structure learning</li>
+</ul>
 <h2 id="common-patterns">Common Patterns<a class="headerlink" href="#common-patterns" title="Permanent link">&para;</a></h2>
 <h3 id="data-loading">Data Loading<a class="headerlink" href="#data-loading" title="Permanent link">&para;</a></h3>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">causaliq_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pandas</span><span class="p">,</span> <span class="n">NumPy</span>
@@ -1589,10 +1766,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "search.highlight", "search.share", "content.code.copy", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "search.highlight", "search.share", "content.code.copy", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
