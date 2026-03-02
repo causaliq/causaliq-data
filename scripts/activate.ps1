@@ -7,7 +7,7 @@ param(
 )
 
 if ($Version -eq "help" -or $Version -eq "?" -or $Version -eq "-h") {
-    Write-Host "Usage: .\scripts\activate.ps1 [39|310|311|312]" -ForegroundColor Yellow
+    Write-Host "Usage: .\scripts\activate.ps1 [39|310|311|312|313]" -ForegroundColor Yellow
     Write-Host "Defaults to Python 3.11 if no version specified" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "Available environments:" -ForegroundColor Cyan
@@ -16,7 +16,8 @@ if ($Version -eq "help" -or $Version -eq "?" -or $Version -eq "-h") {
     if (Test-Path "venv\py310") { Write-Host "  310 - Python 3.10 (venv\py310)" -ForegroundColor Green }
     if (Test-Path "venv\py311") { Write-Host "  311 - Python 3.11 (venv\py311) [DEFAULT]" -ForegroundColor Green }
     if (Test-Path "venv\py312") { Write-Host "  312 - Python 3.12 (venv\py312)" -ForegroundColor Green }
-    
+    if (Test-Path "venv\py313") { Write-Host "  313 - Python 3.13 (venv\py313)" -ForegroundColor Green }
+  
     Write-Host ""
     exit 0
 }
@@ -35,6 +36,7 @@ $DisplayVersion = switch ($Version) {
     "310" { "3.10" }
     "311" { "3.11" }
     "312" { "3.12" }
+    "313" { "3.13" }
     default { "3.$Version" }
 }
 

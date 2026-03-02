@@ -118,7 +118,11 @@ def check(args, results, data):
 
                 pvs = tuple(pvs[levels[i]] for i in levels)
                 for i, xi in enumerate(results[2]):
-                    assert orig.loc[xi, pvs] == results[0][i, j]
+                    val = orig.loc[xi, pvs]
+                    # Handle both scalar and Series returns (pandas version)
+                    if hasattr(val, "item"):
+                        val = val.item()
+                    assert val == results[0][i, j]
 
 
 def orig_marginals(self, node, parents):

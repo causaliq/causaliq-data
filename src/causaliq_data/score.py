@@ -580,7 +580,7 @@ def dag_score(
         for score_type, value in node_scores.items():
             scores[score_type].append(value)
 
-    return DataFrame(scores).set_index("node")
+    return DataFrame(scores).set_index("node")  # type: ignore[no-any-return]
 
 
 def bn_score(
@@ -643,7 +643,7 @@ def bn_score(
         for score_type, value in node_scores.items():
             scores[score_type].append(value)
 
-    return DataFrame(scores).set_index("node")
+    return DataFrame(scores).set_index("node")  # type: ignore[no-any-return]
 
 
 def check_score_params(

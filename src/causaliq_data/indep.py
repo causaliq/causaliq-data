@@ -155,7 +155,7 @@ def indep(
 
     # return independence test results as a DataFrame
 
-    return DataFrame.from_dict(results)
+    return DataFrame.from_dict(results)  # type: ignore[no-any-return]
 
 
 def _statistic(actuals: List[List[int]], type: str) -> Tuple[int, float]:
