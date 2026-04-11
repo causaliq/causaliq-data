@@ -163,7 +163,9 @@ def entropy_scores(
     ):
         raise TypeError("Bad arg types for entropy_scores")
 
-    base = params["base"] if "base" in params else 10  # default to base 10
+    base: Union[int, str] = (
+        params["base"] if "base" in params else 10
+    )  # default to base 10
     k = params["k"] if "k" in params else 1.0  # default to 1.0
 
     if (
