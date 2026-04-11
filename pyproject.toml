@@ -9,10 +9,10 @@ description = "Data caching, scoring and testing for causal discovery"
 readme = "README.md"
 license = "MIT"
 authors = [
-    {name = "CausalIQ", email = "info@causaliq.com"},
+    {name = "CausalIQ", email = "info@causaliq.org"},
 ]
 maintainers = [
-    {name = "CausalIQ", email = "info@causaliq.com"},
+    {name = "CausalIQ", email = "info@causaliq.org"},
 ]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
@@ -34,7 +34,7 @@ dependencies = [
     "numpy>=1.21.0",
     "scipy>=1.7.0",
     "StrEnum>=0.4.15",
-    "causaliq-core>=0.5.0",
+    "causaliq-core>=0.7.0",
 ]
 
 [project.optional-dependencies]

@@ -9,7 +9,7 @@ from causaliq_data.pandas import Pandas
 
 __version__ = "0.4.0.dev1"
 __author__ = "CausalIQ"
-__email__ = "info@causaliq.com"
+__email__ = "info@causaliq.org"
 
 # Package metadata
 __title__ = "causaliq-data"
