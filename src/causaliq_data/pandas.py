@@ -432,6 +432,7 @@ class Pandas(Data):
         maxcol = 1
         rowval = None
         colval = None
+        counts: np.ndarray
         start = Timing.now()
 
         if node in parents:

@@ -190,21 +190,21 @@ def entropy_scores(
     nonzero = Nijk > 0
     loglik = zeros(Nijk.shape)
     loglik[nonzero] = Nijk[nonzero] * nplog(Nijk[nonzero] / Nij[nonzero])
-    loglik = loglik.sum().item()
+    loglik_val: float = float(loglik.sum().item())
     if base == 2 or base == 10:
-        loglik = loglik / nplog(base)
+        loglik_val = float(loglik_val / nplog(base))
 
     # Compute specific scores with particular complexity penalties
 
-    scores = {}
+    scores: Dict[str, float] = {}
     if "loglik" in types:
-        scores["loglik"] = loglik
+        scores["loglik"] = loglik_val
 
     if "bic" in types:
-        scores["bic"] = loglik - (k * 0.5 * free_params * ln(N, base))
+        scores["bic"] = loglik_val - (k * 0.5 * free_params * ln(N, base))
 
     if "aic" in types:
-        scores["aic"] = loglik - params["k"] * free_params
+        scores["aic"] = loglik_val - params["k"] * free_params
 
     return scores
 

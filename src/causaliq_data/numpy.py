@@ -363,7 +363,7 @@ class NumPy(Data):
         if self.dstype == "categorical":
             for j in range(self.sample.shape[1]):
                 counts = {
-                    self.categories[j][v]: c  # type: ignore[index]
+                    self.categories[j][v]: int(c)  # type: ignore[index]
                     for v, c in enumerate(bincount(self.sample[:, j]))
                 }
                 counts = {v: counts[v] for v in sorted(counts)}
