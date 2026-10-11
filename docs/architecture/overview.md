@@ -134,3 +134,38 @@ The `score` module provides a comprehensive **scoring framework** for evaluating
 3. **Extensibility**: New data adapters can be added without changing existing code
 4. **Type Safety**: Comprehensive type checking and validation throughout the pipeline
 5. **Reproducibility**: Built-in support for seeded randomization and deterministic operations
+
+## Module Organisation
+
+Modules are kept within the module and method limits described in the
+[development policy](https://github.com/causaliq/causaliq/blob/main/docs/development_policy/01-code.md).
+Where an existing module exceeded them, the implementation was reorganised
+using one of two techniques:
+
+- **Flattening**: long methods are split into private helper functions and
+  methods in the same module. This is used wherever tests substitute a
+  function by name (for example `causaliq_data.score.gaussian_node_score`
+  and `causaliq_data.numpy.MAX_CATEGORY`), so that those patches continue to
+  intercept calls.
+- **Sub-module decomposition**: a module is split into sibling sub-modules
+  which the original module re-exports. Every moved name remains importable
+  from its original module path, so import sites and patch targets are
+  unchanged.
+
+### Sub-Modules
+
+The modules that were decomposed are:
+
+```text
+src/causaliq_data/
+├── numpy_counting.py    # combination packing, counts axes and categorical counts
+├── numpy_categories.py  # categorical code encoding and decoding
+├── score_categorical.py # categorical entropy and Bayesian score kernels
+├── score_gaussian.py    # Gaussian entropy and BGE score kernels
+└── score_params.py      # score constants, parameter checks and free parameters
+```
+
+The `indep`, `pandas`, `numpy`, `score` and package `__init__` modules were
+brought within the limits by flattening plus, where the module statement
+target required it, extracting the helpers above. `data`, `oracle`,
+`preprocess` and `cli` were already within the limits and are unchanged.

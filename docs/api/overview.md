@@ -35,6 +35,9 @@ A high-performance implementation using NumPy arrays for computational efficienc
 - **Type Optimization**: Automatic selection of appropriate numeric types
 - **Advanced Sampling**: Multiple strategies for data subset selection and randomization
 
+The counting and category helpers used by the adapter are documented under
+[counting helpers](numpy_counting.md) and [category helpers](numpy_categories.md).
+
 ### [`Oracle`](oracle.md) - Synthetic Data Generator
 
 A specialized adapter for generating synthetic data from known Bayesian Networks:
@@ -53,6 +56,11 @@ A comprehensive module providing scoring functions for evaluating Bayesian netwo
 - **Gaussian Scoring**: BGE, Gaussian BIC, and Gaussian log-likelihood for continuous data
 - **Network Evaluation**: Complete DAG and Bayesian Network scoring with per-node breakdowns
 - **Parameter Validation**: Automatic parameter checking and default value assignment
+
+The score functions are implemented in sibling sub-modules which are
+re-exported from `causaliq_data.score`: [categorical scores](score_categorical.md),
+[Gaussian scores](score_gaussian.md) and
+[parameters](score_params.md).
 
 ### [`Independence Testing`](indep.md) - Probabilistic Independence Tests
 

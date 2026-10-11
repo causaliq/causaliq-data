@@ -2,6 +2,11 @@
 
 The `NumPy` class provides a high-performance implementation of the Data interface using NumPy arrays as the underlying storage. This adapter is optimized for computational efficiency and large-scale causal discovery operations.
 
+Stateless counting and category helpers used by the adapter live in sibling
+sub-modules: [counting helpers](numpy_counting.md) and
+[category helpers](numpy_categories.md). The adapter passes all state to them
+as arguments, so patch targets such as `NumPy.MAX_BINCOUNT` are unchanged.
+
 ## Class Definition
 
 ```python

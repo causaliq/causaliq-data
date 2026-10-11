@@ -2,6 +2,11 @@
 
 The `score` module provides comprehensive scoring functions for evaluating Bayesian networks and DAGs. It implements various entropy-based and Bayesian scoring methods for both categorical and continuous (Gaussian) data.
 
+The kernels are implemented in sibling sub-modules which `score` re-exports:
+[categorical scores](score_categorical.md), [Gaussian scores](score_gaussian.md)
+and [score parameters](score_params.md). Every name remains importable from
+`causaliq_data.score`, so module paths are unchanged.
+
 ## Score Types
 
 ### Categorical Data Scores

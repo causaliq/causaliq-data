@@ -43,7 +43,9 @@ extra_css:
 
 nav:
   - Home: index.md
-  - Roadmap: roadmap.md
+  - Roadmap: 
+    - Roadmap: roadmap.md
+    - Current Task: current_task.md
   - User Guide:
     - User Guide Introduction: userguide/introduction.md
   - Architecture: 
@@ -54,11 +56,18 @@ nav:
     - API Overview: api/overview.md
     - Data (Base Class): api/data.md
     - Pandas Adapter: api/pandas.md
-    - NumPy Adapter: api/numpy.md
+    - NumPy Adapter:
+      - Overview: api/numpy.md
+      - Counting Helpers: api/numpy_counting.md
+      - Category Helpers: api/numpy_categories.md
     - Oracle Adapter: api/oracle.md
     - Independence Testing: api/indep.md
     - Preprocess: api/preprocess.md
-    - Score Functions: api/score.md
+    - Score Functions:
+      - Overview: api/score.md
+      - Categorical Scores: api/score_categorical.md
+      - Gaussian Scores: api/score_gaussian.md
+      - Parameters: api/score_params.md
     - CLI: api/cli.md
 
 plugins:
