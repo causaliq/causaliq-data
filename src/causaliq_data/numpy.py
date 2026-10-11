@@ -6,24 +6,19 @@ from typing import Any, Dict, Optional, Tuple, cast
 
 from causaliq_core.utils import FileFormatError, is_valid_path
 from causaliq_core.utils.timing import Timing
-from numpy import (
-    array,
-    bincount,
-    empty,
-    float64,
-    lexsort,
-    ndarray,
-    nonzero,
-)
+from numpy import array, float64, lexsort, ndarray
 from numpy import unique as npunique
-from numpy import (
-    zeros,
-)
 from numpy.random import default_rng
-from pandas import Categorical, DataFrame, factorize, read_csv
+from pandas import DataFrame, read_csv
 from pandas.errors import EmptyDataError
 
 from causaliq_data import Data, DatasetType
+from causaliq_data.numpy_categories import category_codes, restore_categories
+from causaliq_data.numpy_counting import (
+    categorical_value_counts,
+    combinations_from_binning,
+    crosstab_counts,
+)
 from causaliq_data.pandas import Pandas
 
 MAX_CATEGORY = 100  # maximum number of different values in category
@@ -59,6 +54,10 @@ class NumPy(Data):
     """
 
     MAX_BINCOUNT = 1000000
+
+    # current working sample; declared so that the attribute type does not
+    # depend on the order in which assignments are type checked
+    _sample: ndarray
 
     def __init__(
         self,
@@ -129,26 +128,11 @@ class NumPy(Data):
         )  # Initialize empty, will be populated by set_N
         self.set_N(N=data.shape[0])
 
-    @classmethod
-    def read(
-        cls, filename: str, dstype: DatasetType, N: Optional[int] = None
-    ) -> "NumPy":
-        """Read a file into a NumPy object.
-
-        Args:
-            filename (str): Full path of data file.
-            dstype (DatasetType/str): Type of dataset.
-            N (int, optional): Number of rows to read.
-
-        Returns:
-            NumPy: Data contained in file.
-
-        Raises:
-            TypeError: If argument types incorrect.
-            ValueError: If illegal values in args or file.
-            FileNotFoundError: If file does not exist.
-            FileFormatError: If format of file incorrect.
-        """
+    @staticmethod
+    def _check_read_args(
+        filename: str, dstype: DatasetType, N: Optional[int]
+    ) -> None:
+        """Check the argument types and values for `read`."""
         if (
             not isinstance(filename, str)
             or (
@@ -164,18 +148,18 @@ class NumPy(Data):
         if N is not None and N < 2:
             raise ValueError("Bad argument values for data.read")
 
-        is_valid_path(filename)
-
-        if dstype == "mixed":
-            raise ValueError("Mixed datasets not supported")
-
+    @staticmethod
+    def _read_csv_to_df(
+        filename: str, dstype: DatasetType, N: Optional[int]
+    ) -> DataFrame:
+        """Read a CSV file into a dataframe, mapping format errors."""
         try:
 
             # Read from file treating as floats/strings according to dstype
 
             nrows = {} if N is None else {"nrows": N}
             dtype = "float32" if dstype == "continuous" else "category"
-            df = read_csv(  # type: ignore[call-overload]
+            df: DataFrame = read_csv(  # type: ignore[call-overload]
                 filename,
                 sep=",",
                 header=0,
@@ -197,7 +181,62 @@ class NumPy(Data):
         ) as e:
             raise FileFormatError("File format error: {}".format(e))
 
+        return df
+
+    @classmethod
+    def read(
+        cls, filename: str, dstype: DatasetType, N: Optional[int] = None
+    ) -> "NumPy":
+        """Read a file into a NumPy object.
+
+        Args:
+            filename (str): Full path of data file.
+            dstype (DatasetType/str): Type of dataset.
+            N (int, optional): Number of rows to read.
+
+        Returns:
+            NumPy: Data contained in file.
+
+        Raises:
+            TypeError: If argument types incorrect.
+            ValueError: If illegal values in args or file.
+            FileNotFoundError: If file does not exist.
+            FileFormatError: If format of file incorrect.
+        """
+        cls._check_read_args(filename, dstype, N)
+
+        is_valid_path(filename)
+
+        if dstype == "mixed":
+            raise ValueError("Mixed datasets not supported")
+
+        df = cls._read_csv_to_df(filename, dstype, N)
+
         return NumPy.from_df(df, dstype, keep_df=False)
+
+    @staticmethod
+    def _check_from_df_args(
+        df: DataFrame, dstype: DatasetType, keep_df: bool
+    ) -> None:
+        """Check the argument types and values for `from_df`."""
+        if (
+            not isinstance(df, DataFrame)
+            or not isinstance(keep_df, bool)
+            or (
+                not isinstance(dstype, (DatasetType, str))
+                or dstype not in {v for v in DatasetType}
+            )
+        ):
+            raise TypeError("NumPy.from_df() bad arg type")
+
+        dtypes = {df[c].dtype.__str__() for c in df.columns}
+        if (
+            len(df.columns) == 1
+            or len(df) == 1
+            or (dstype == "categorical" and dtypes != {"category"})
+            or (dstype == "continuous" and dtypes != {"float32"})
+        ):
+            raise ValueError("NumPy.from_df() bad arg value")
 
     @classmethod
     def from_df(
@@ -221,24 +260,7 @@ class NumPy(Data):
             ValueError: If illegal values in args or dataframe.
             FileFormatError: If format issues with dataframe.
         """
-        if (
-            not isinstance(df, DataFrame)
-            or not isinstance(keep_df, bool)
-            or (
-                not isinstance(dstype, (DatasetType, str))
-                or dstype not in {v for v in DatasetType}
-            )
-        ):
-            raise TypeError("NumPy.from_df() bad arg type")
-
-        dtypes = {df[c].dtype.__str__() for c in df.columns}
-        if (
-            len(df.columns) == 1
-            or len(df) == 1
-            or (dstype == "categorical" and dtypes != {"category"})
-            or (dstype == "continuous" and dtypes != {"float32"})
-        ):
-            raise ValueError("NumPy.from_df() bad arg value")
+        cls._check_from_df_args(df, dstype, keep_df)
 
         # if keep_df is True:
         #     df = df.copy()
@@ -250,25 +272,8 @@ class NumPy(Data):
             # value mapping as a tuple for each node, i.e. ('yes', 'no')
             # implies integer code 0 maps to 'yes', 1 to 'no'
 
-            col_values: Dict[str, Optional[Tuple[str, ...]]] = {}
-            for col in df2.columns:
-                df2[col], uniques = factorize(df2[col])
-                if len(uniques) > MAX_CATEGORY:
-                    raise ValueError("data.read() too many categories")
-                # Handle the case where uniques might be
-                # Index or CategoricalIndex
-                if hasattr(uniques, "categories") and hasattr(
-                    uniques, "codes"
-                ):
-                    # CategoricalIndex case
-                    unique_values = uniques.categories[
-                        uniques.codes
-                    ].unique()  # type: ignore[attr-defined]
-                else:
-                    # Regular Index case
-                    # type: ignore[attr-defined]
-                    unique_values = uniques.unique()
-                col_values[col] = tuple(unique_values)
+            col_values = category_codes(df2, MAX_CATEGORY)
+
         else:
 
             # col_values just holds node names for continuous data
@@ -284,6 +289,92 @@ class NumPy(Data):
         data = df2.to_numpy(dtype=dtype)
 
         return NumPy(data, dstype, col_values)
+
+    @staticmethod
+    def _check_set_N_args(
+        N: int,
+        seed: Optional[int],
+        random_selection: bool,
+        n_rows: int,
+    ) -> None:
+        """Check the argument types and values for `set_N`."""
+        if (
+            not isinstance(N, int)
+            or isinstance(N, bool)
+            or not isinstance(random_selection, bool)
+            or seed is not None
+            and (not isinstance(seed, int) or isinstance(seed, bool))
+        ):
+            raise TypeError("NumPy.set_N() bad arg type")
+
+        if (
+            N < 1
+            or N > n_rows
+            or (seed is not None and (seed < 0 or seed > 100))
+        ):
+            raise ValueError("NumPy.set_N() bad arg value")
+
+    def _select_sample(
+        self, N: int, seed: Optional[int], random_selection: bool
+    ) -> ndarray:
+        """Return a sample of N rows for the requested selection."""
+        rng = (
+            default_rng(seed)
+            if seed is not None and seed != 0
+            else default_rng(0)
+        )
+
+        if random_selection is True:
+
+            # Choose a random selection of rows from data
+
+            indices = rng.choice(self.data.shape[0], size=N, replace=False)
+            return (
+                self.data[sorted(indices)]
+                if seed is None or seed == 0
+                else self.data[indices]
+            )
+
+        # Always use first N rows of data
+
+        sample = self.data[:N, :]
+
+        # Shuffle sample row order if seed is specified
+
+        if seed is not None and seed != 0:
+            order = rng.permutation(N)
+            sample = sample[order]
+
+        return sample
+
+    def _recast_continuous_sample(self) -> None:
+        """Recast the sample as float64 for precision in score calcs.
+
+        Doing it here means it is only done once for each sample.
+        """
+        sorted_idx = lexsort(self.sample[:, ::-1].T)
+        self._sample = self.sample[sorted_idx].astype(float64)
+
+    def _set_sample_node_values(self) -> None:
+        """Set node values and counts for the current sample."""
+        self._node_values = {}
+        if self.dstype == "categorical":
+
+            # compute the node values and counts for categorical variables
+            # for the sample
+
+            self._node_values = categorical_value_counts(
+                self.sample,
+                cast(ndarray, self.categories),
+                self.nodes,
+                self.orig_to_ext,
+            )
+
+        if self.dstype == "continuous":
+
+            # change continuous data to float64 for precision in score calcs
+
+            self._recast_continuous_sample()
 
     def set_N(
         self,
@@ -304,77 +395,12 @@ class NumPy(Data):
             TypeError: If bad argument type.
             ValueError: If bad argument value.
         """
-        if (
-            not isinstance(N, int)
-            or isinstance(N, bool)
-            or not isinstance(random_selection, bool)
-            or seed is not None
-            and (not isinstance(seed, int) or isinstance(seed, bool))
-        ):
-            raise TypeError("NumPy.set_N() bad arg type")
-
-        if (
-            N < 1
-            or N > self.data.shape[0]
-            or (seed is not None and (seed < 0 or seed > 100))
-        ):
-            raise ValueError("NumPy.set_N() bad arg value")
+        self._check_set_N_args(N, seed, random_selection, self.data.shape[0])
 
         self._N = N
-        rng = (
-            default_rng(seed)
-            if seed is not None and seed != 0
-            else default_rng(0)
-        )
+        self._sample = self._select_sample(N, seed, random_selection)
 
-        if random_selection is True:
-
-            # Choose a random selection of rows from data
-
-            indices = rng.choice(self.data.shape[0], size=N, replace=False)
-            self._sample = (
-                self.data[sorted(indices)]
-                if seed is None or seed == 0
-                else self.data[indices]
-            )
-
-            # Shuffle sample row order if needed (this second shuffle is
-            # redundant but is retained to maintain compatability with)
-
-            # if seed is not None and seed != 0:
-            #     rng.shuffle(self.sample)  # Shuffle in-place
-
-        else:
-
-            # Always use first N rows of data
-
-            self._sample = self.data[:N, :]
-
-            # Shuffle sample row order if seed is specified
-
-            if seed is not None and seed != 0:
-                order = rng.permutation(N)
-                self._sample = self.sample[order]
-
-        # compute the node values and counts for categorical variables for
-        # the sample
-
-        self._node_values = {}
-        if self.dstype == "categorical":
-            for j in range(self.sample.shape[1]):
-                counts = {
-                    self.categories[j][v]: int(c)  # type: ignore[index]
-                    for v, c in enumerate(bincount(self.sample[:, j]))
-                }
-                counts = {v: counts[v] for v in sorted(counts)}
-                self._node_values[self.orig_to_ext[self.nodes[j]]] = counts
-
-        # change continuous data to float64 for precision in score calcs. Doing
-        # it here means it is only done once for each sample.
-
-        if self.dstype == "continuous":
-            sorted_idx = lexsort(self.sample[:, ::-1].T)
-            self._sample = self.sample[sorted_idx].astype(float64)
+        self._set_sample_node_values()
 
     def _update_sample(
         self,
@@ -430,39 +456,104 @@ class NumPy(Data):
         if minlength <= self.MAX_BINCOUNT:
 
             # If maximum number of possible combinations below threshold then
-            # pack combinations into integers, and count those for speed.
-            # First, generate the packed integers
+            # pack combinations into integers, and count those for speed
 
-            multipliers = array(
-                [prod((num_vals[:i]).tolist()) for i in range(len(j_reqd))]
+            return combinations_from_binning(
+                self.sample[:, j_reqd], num_vals, len(j_reqd), minlength
             )
-            packed = self.sample[:, j_reqd] @ multipliers
 
-            # Count the frquency of unique packed integers, removing all
-            # entries with zero counts
+        # If maximum number of possible combinations above threshold then
+        # using the much slower numpy unique function.
 
-            counts = bincount(packed, minlength=minlength)
-            packed = nonzero(counts)[0]
-            counts = counts[packed]
-
-            # Unpack integers back into their combinations of values using
-            # the same multipliers used to pack them into one integer
-
-            combos: ndarray = empty((len(packed), len(multipliers)), dtype=int)
-            for jj, r in enumerate(reversed(multipliers)):
-                combos[:, len(multipliers) - jj - 1] = packed // r
-                packed = packed % r
-
-        else:
-
-            # If maximum number of possible combinations above threshold then
-            # using the much slower numpy unique function.
-
-            combos, counts = npunique(
-                self.sample[:, j_reqd], axis=0, return_counts=True
-            )
+        combos, counts = npunique(
+            self.sample[:, j_reqd], axis=0, return_counts=True
+        )
 
         return combos, counts
+
+    @staticmethod
+    def _check_numpy_marginals_args(
+        node: str, parents: Dict, values_reqd: bool
+    ) -> None:
+        """Check the argument types for `marginals`."""
+        if (
+            not isinstance(node, str)
+            or not isinstance(parents, dict)
+            or not all([isinstance(p, list) for p in parents.values()])
+            or not isinstance(values_reqd, bool)
+        ):
+            raise TypeError("NumPy.marginals() bad arg type")
+
+    def _marginal_nodes(self, node: str, parents: Dict) -> tuple:
+        """Return the nodes (external names) for which marginals required."""
+        nodes = tuple([node] + parents[node]) if node in parents else (node,)
+        if len(set(nodes) - set(self.node_values)) != 0 or len(nodes) != len(
+            set(nodes)
+        ):
+            raise ValueError("NumPy.marginals() bad arg value")
+
+        return nodes
+
+    def _counts_for_single_node(
+        self, node: str, values_reqd: bool
+    ) -> Tuple[ndarray, Optional[tuple]]:
+        """Return marginals counts and row values for a single node."""
+        counts = array(
+            [[c] for c in self.node_values[node].values()], dtype=int
+        )
+
+        rowval = None
+        if values_reqd is True:
+            rowval = tuple(self.node_values[node].keys())
+
+        return (counts, rowval)
+
+    def _parent_combo_values(self, j_reqd: tuple, p_combos: ndarray) -> tuple:
+        """Return the parental value combo for each contingency column."""
+        return tuple(
+            {
+                self.orig_to_ext[self.nodes[j_reqd[j]]]: (
+                    self.categories[j_reqd[j]][c[j - 1]]  # type: ignore[index]
+                )
+                for j in range(1, len(j_reqd))
+            }
+            for c in p_combos
+        )
+
+    def _counts_for_parents(
+        self, node: str, nodes: tuple, values_reqd: bool
+    ) -> tuple:
+        """Return marginals counts and values for a node with parents."""
+        # Determine required column indices and number of unique values
+        # in each column.
+
+        j_reqd = tuple(self.nodes.index(self.ext_to_orig[n]) for n in nodes)
+        num_vals = array([len(self.node_values[n]) for n in nodes])
+        maxcol = prod((num_vals[1:]).tolist())
+
+        # identify and count unique combinations of node values
+
+        combos, combo_counts = self.unique(j_reqd, num_vals)
+
+        # initialise and populate the crosstab-style matrix where rows
+        # are child values, and columns are unique parental combinations.
+
+        counts, p_combos = crosstab_counts(
+            combos, combo_counts, len(self.node_values[node])
+        )
+
+        # Generate child category corresponding to each row, and parental
+        # category combination to each column if required.
+
+        rowval = None
+        colval = None
+        if values_reqd is True:
+            rowval = tuple(self.categories[j_reqd[0]])  # type: ignore[index]
+            colval = self._parent_combo_values(j_reqd, p_combos)
+
+        p_combos = combo_counts = combos = cast(Any, None)
+
+        return (counts, maxcol, rowval, colval)
 
     def marginals(
         self, node: str, parents: Dict, values_reqd: bool = False
@@ -485,88 +576,28 @@ class NumPy(Data):
             TypeError: For bad argument types.
             ValueError: For bad argument values.
         """
-        if (
-            not isinstance(node, str)
-            or not isinstance(parents, dict)
-            or not all([isinstance(p, list) for p in parents.values()])
-            or not isinstance(values_reqd, bool)
-        ):
-            raise TypeError("NumPy.marginals() bad arg type")
+        self._check_numpy_marginals_args(node, parents, values_reqd)
 
         # determine nodes (external names) for which marginals required
 
-        nodes = tuple([node] + parents[node]) if node in parents else (node,)
-        if len(set(nodes) - set(self.node_values)) != 0 or len(nodes) != len(
-            set(nodes)
-        ):
-            raise ValueError("NumPy.marginals() bad arg value")
+        nodes = self._marginal_nodes(node, parents)
 
         maxcol = 1
         rowval = colval = None
+        counts: ndarray
         start = Timing.now()
 
         if len(nodes) == 1:
 
             # marginals for a single variable - just use node_values
 
-            counts = array(
-                [[c] for c in self.node_values[node].values()], dtype=int
-            )
-            if values_reqd is True:
-                rowval = tuple(self.node_values[node].keys())
+            counts, rowval = self._counts_for_single_node(node, values_reqd)
 
         else:
 
-            # Determine required column indices and number of unique values
-            # in each column.
-
-            j_reqd = tuple(
-                self.nodes.index(self.ext_to_orig[n]) for n in nodes
+            counts, maxcol, rowval, colval = self._counts_for_parents(
+                node, nodes, values_reqd
             )
-            num_vals = array([len(self.node_values[n]) for n in nodes])
-            maxcol = prod((num_vals[1:]).tolist())
-
-            # identify and count unique combinations of node values
-
-            combos, _counts = self.unique(j_reqd, num_vals)
-
-            # separate the child values and parental combinations
-
-            c_values = array(range(len(self.node_values[node])))
-            p_combos = npunique(combos[:, 1:], axis=0)
-
-            # initialise and populate the crosstab-style matrix where rows
-            # are child values, and columns are unique parental combinations.
-
-            c_value_to_i = {v: i for i, v in enumerate(c_values)}
-            p_combo_to_j = {tuple(c): j for j, c in enumerate(p_combos)}
-            counts = zeros((len(c_values), len(p_combos)), dtype="int32")
-            for idx, (c_value, *p_combo) in enumerate(combos):
-                i = c_value_to_i[c_value]
-                j = p_combo_to_j[tuple(p_combo)]
-                counts[i, j] = _counts[idx]
-
-            # Generate child category corresponding to each row, and parental
-            # category combination to each column if required.
-
-            if values_reqd is True:
-                rowval = tuple(
-                    self.categories[j_reqd[0]]  # type: ignore[index]
-                )
-                colval = tuple(
-                    {
-                        self.orig_to_ext[self.nodes[j_reqd[j]]]: (
-                            self.categories[j_reqd[j]][  # type: ignore[index]
-                                c[j - 1]
-                            ]
-                        )
-                        for j in range(1, len(j_reqd))
-                    }
-                    for c in p_combos
-                )
-
-            c_values = p_combos = c_value_to_i = p_combo_to_j = cast(Any, None)
-            _counts = combos = cast(Any, None)
 
         Timing.record("marginals", len(nodes), start)
 
@@ -619,15 +650,7 @@ class NumPy(Data):
         # Convert integers representing categories back to categories
 
         if self.dstype == "categorical":
-            for j in range(len(df.columns)):
-                # Extract the integer codes first to avoid dtype warnings
-                codes = df.iloc[:, j].values
-                categorical_data = Categorical.from_codes(
-                    codes,  # type: ignore[arg-type]
-                    categories=self.categories[j],  # type: ignore[index]
-                )
-                # Use column assignment instead of iloc to avoid dtype warnings
-                df[df.columns[j]] = categorical_data
+            restore_categories(df, cast(ndarray, self.categories))
 
         # reorder and rename the columns if required
 

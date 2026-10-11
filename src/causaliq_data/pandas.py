@@ -84,6 +84,78 @@ class Pandas(Data):
         return column.astype(str).astype(type_name)
 
     @classmethod
+    def _check_read_args(
+        cls,
+        filename: str,
+        dstype: Optional[Any],
+        N: Optional[int],
+    ) -> None:
+        """Check the argument types and values for `read`."""
+        if (
+            not isinstance(filename, str)
+            or (
+                N is not None
+                and (not isinstance(N, int) or isinstance(N, bool))
+            )
+            or (
+                dstype is not None
+                and (
+                    not isinstance(dstype, (DatasetType, str))
+                    or dstype not in {v for v in DatasetType}
+                )
+            )
+        ):
+            raise TypeError("Bad argument types for Pandas.read")
+        if N is not None and N < 2:
+            raise ValueError("Bad argument values for Pandas.read")
+
+    @classmethod
+    def _read_csv_file(
+        cls,
+        filename: str,
+        dstype: Optional[Any],
+        N: Optional[int],
+    ) -> DataFrame:
+        """Read a CSV file into a dataframe, mapping format errors."""
+        try:
+            # Read from file treating all values as strings initially
+
+            dtype = (
+                "float32"
+                if dstype == "continuous"
+                else ("category" if dstype == "categorical" else "object")
+            )
+            df = read_csv(
+                filename,
+                sep=",",
+                header=0,
+                encoding="utf-8",
+                keep_default_na=False,
+                na_values="<NA>",
+                dtype=dtype,
+                nrows=N,
+            )
+            if N is not None and N > len(df):
+                raise ValueError("Bad argument values for Pandas.read")
+
+        except (
+            UnicodeDecodeError,
+            PermissionError,
+            EmptyDataError,
+            BadGzipFile,
+        ) as e:
+            raise FileFormatError("File format error: {}".format(e))
+
+        return df
+
+    @classmethod
+    def _set_column_types(cls, df: DataFrame) -> None:
+        """Set column types suitable for structure learning."""
+        print()
+        for col in df.columns:
+            df[col] = cls._set_type(df[col])
+
+    @classmethod
     def read(
         cls,
         filename: str,
@@ -106,64 +178,19 @@ class Pandas(Data):
             FileNotFoundError: If file does not exist.
             FileFormatError: If format of file incorrect.
         """
-        if (
-            not isinstance(filename, str)
-            or (
-                N is not None
-                and (not isinstance(N, int) or isinstance(N, bool))
-            )
-            or (
-                dstype is not None
-                and (
-                    not isinstance(dstype, (DatasetType, str))
-                    or dstype not in {v for v in DatasetType}
-                )
-            )
-        ):
-            raise TypeError("Bad argument types for Pandas.read")
-        if N is not None and N < 2:
-            raise ValueError("Bad argument values for Pandas.read")
+        cls._check_read_args(filename, dstype, N)
 
         is_valid_path(filename)
 
-        try:
-            # Read from file treating all values as strings initially
+        df = cls._read_csv_file(filename, dstype, N)
 
-            dtype = (
-                "float32"
-                if dstype == "continuous"
-                else ("category" if dstype == "categorical" else "object")
-            )
-            df = read_csv(
-                filename,
-                sep=",",
-                header=0,
-                encoding="utf-8",
-                keep_default_na=False,
-                na_values="<NA>",
-                dtype=dtype,
-                nrows=N,
-            )
-            if N is not None and N > len(df):
-                raise ValueError("Bad argument values for Pandas.read")
+        # Convert values to appropriate type for structure learning
+        # if dstype was unspecified or was mixed
 
-            # Convert values to appropriate type for structure learning
-            # if dstype was unspecified or was mixed
+        if dstype not in {"categorical", "continuous"}:
+            cls._set_column_types(df)
 
-            if dstype not in {"categorical", "continuous"}:
-                print()
-                for col in df.columns:
-                    df[col] = cls._set_type(df[col])
-
-            return Pandas(df=df)
-
-        except (
-            UnicodeDecodeError,
-            PermissionError,
-            EmptyDataError,
-            BadGzipFile,
-        ) as e:
-            raise FileFormatError("File format error: {}".format(e))
+        return Pandas(df=df)
 
     # BNFit interface properties - expose instance variables as properties
 
@@ -401,6 +428,82 @@ class Pandas(Data):
 
         self._update_sample(old_ext_to_orig=old_ext_to_orig)
 
+    @staticmethod
+    def _check_marginals_args(
+        node: str, parents: Dict, values_reqd: bool
+    ) -> None:
+        """Check the argument types for `marginals`."""
+        if (
+            not isinstance(node, str)
+            or not isinstance(parents, dict)
+            or not all([isinstance(p, list) for p in parents.values()])
+            or not isinstance(values_reqd, bool)
+        ):
+            raise TypeError("Pandas.marginals() bad arg type")
+
+    @staticmethod
+    def _parent_combo_values(marginals: DataFrame) -> Tuple:
+        """Return the parent value combo for each contingency column."""
+        return tuple(
+            dict(
+                zip(
+                    marginals.columns.names,
+                    (col,) if isinstance(col, str) else col,
+                )
+            )
+            for col in marginals.columns
+        )
+
+    def _marginals_with_parents(
+        self, node: str, parents: Dict, values_reqd: bool
+    ) -> Tuple:
+        """Return counts and values for marginals of a node with parents."""
+        marginals = DataFrame.copy(
+            crosstab(
+                self.sample[node],
+                [self.sample[p] for p in sorted(parents[node])],
+            )
+        )
+
+        # max number of parental value combos is geometric product of
+        # number of states of each parent
+
+        maxcol = 1
+        for p in parents[node]:
+            maxcol *= len(self.node_values[p].keys())
+
+        # sort rows and columns by values to get consistent ordering
+
+        marginals.sort_index(axis="index", inplace=True)
+        marginals.sort_index(axis="columns", inplace=True)
+
+        # extract row and column values from indices if required
+
+        rowval = None
+        colval = None
+        if values_reqd is True:
+            rowval = tuple(marginals.index)
+            colval = Pandas._parent_combo_values(marginals)
+
+        # Obtain counts as newly instantiated NumPy 2-D array
+
+        counts = marginals.to_numpy(dtype="int32", copy=True)
+
+        return (counts, maxcol, rowval, colval)
+
+    def _marginals_orphan(self, node: str, values_reqd: bool) -> Tuple:
+        """Return counts and values for marginals of an orphan node."""
+        marginals_dict = (
+            self.sample[node].value_counts().sort_index().to_dict()
+        )
+        counts = array([[c] for c in marginals_dict.values()], dtype="int32")
+
+        rowval = None
+        if values_reqd is True:
+            rowval = tuple(marginals_dict.keys())
+
+        return (counts, rowval)
+
     def marginals(
         self, node: str, parents: Dict, values_reqd: bool = False
     ) -> Tuple:
@@ -421,13 +524,7 @@ class Pandas(Data):
         Raises:
             TypeError: For bad argument types.
         """
-        if (
-            not isinstance(node, str)
-            or not isinstance(parents, dict)
-            or not all([isinstance(p, list) for p in parents.values()])
-            or not isinstance(values_reqd, bool)
-        ):
-            raise TypeError("Pandas.marginals() bad arg type")
+        self._check_marginals_args(node, parents, values_reqd)
 
         maxcol = 1
         rowval = None
@@ -439,60 +536,18 @@ class Pandas(Data):
 
             # Node has parents so get cross tabulation
 
-            marginals = DataFrame.copy(
-                crosstab(
-                    self.sample[node],
-                    [self.sample[p] for p in sorted(parents[node])],
-                )
+            counts, maxcol, rowval, colval = self._marginals_with_parents(
+                node, parents, values_reqd
             )
-
-            # max number of parental value combos is geometric product of
-            # number of states of each parent
-
-            for p in parents[node]:
-                maxcol *= len(self.node_values[p].keys())
-
-            # sort rows and columns by values to get consistent ordering
-
-            marginals.sort_index(axis="index", inplace=True)
-            marginals.sort_index(axis="columns", inplace=True)
-
-            # extract row and column values from indices if required
-
-            if values_reqd is True:
-                rowval = tuple(marginals.index)
-                colval = tuple(
-                    dict(
-                        zip(
-                            marginals.columns.names,
-                            (col,) if isinstance(col, str) else col,
-                        )
-                    )
-                    for col in marginals.columns
-                )
-
-            # Obtain counts as newly instantiated NumPy 2-D array
-
-            counts = marginals.to_numpy(dtype="int32", copy=True)
 
         else:
 
             # Orphan node so just use node value counts, sorted by value
 
-            marginals_dict = (
-                self.sample[node].value_counts().sort_index().to_dict()
-            )
-            counts = array(
-                [[c] for c in marginals_dict.values()], dtype="int32"
-            )
+            counts, rowval = self._marginals_orphan(node, values_reqd)
 
-            if values_reqd is True:
-                rowval = tuple(marginals_dict.keys())
+        # Record timing information
 
-        # Free memory and record timing information
-
-        if node in parents:
-            del marginals
         Timing.record(
             "marginals",
             (len(parents[node]) + 1 if node in parents else 1),

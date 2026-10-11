@@ -2,6 +2,8 @@
 causaliq-data: Data handling for causal discovery and BN fitting.
 """
 
+from typing import List, Optional
+
 from causaliq_data.data import Data, DatasetType, VariableType
 from causaliq_data.numpy import NumPy
 from causaliq_data.oracle import Oracle
@@ -19,6 +21,14 @@ __url__ = "https://github.com/causaliq/causaliq-data"
 __license__ = "MIT"
 
 
+def _version_part(part: str) -> Optional[int]:
+    """Return the integer value of a version part, or None if not numeric."""
+    try:
+        return int(part)
+    except ValueError:
+        return None
+
+
 def _parse_version(version_str: str) -> tuple:
     """Parse version string to tuple, handling pre-release identifiers.
 
@@ -31,12 +41,12 @@ def _parse_version(version_str: str) -> tuple:
     Returns:
         Tuple of integers (e.g., (0, 3, 0)).
     """
-    parts = []
+    parts: List[int] = []
     for part in version_str.split("."):
-        try:
-            parts.append(int(part))
-        except ValueError:
+        value = _version_part(part)
+        if value is None:
             break
+        parts.append(value)
     return tuple(parts)
 
 
