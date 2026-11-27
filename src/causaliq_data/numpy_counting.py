@@ -5,7 +5,6 @@
 # unchanged; the adapter passes all state in as arguments.
 
 from math import prod
-from typing import Dict, Tuple
 
 from numpy import array, bincount, empty, ndarray, nonzero
 from numpy import unique as npunique
@@ -17,7 +16,7 @@ def combinations_from_binning(
     num_vals: ndarray,
     n_reqd: int,
     minlength: int,
-) -> Tuple[ndarray, ndarray]:
+) -> tuple[ndarray, ndarray]:
     """Count unique combinations of values by packing them into integers.
 
     Args:
@@ -53,9 +52,9 @@ def combinations_from_binning(
 def categorical_value_counts(
     sample: ndarray,
     categories: ndarray,
-    nodes: Tuple[str, ...],
-    orig_to_ext: Dict[str, str],
-) -> Dict[str, Dict[str, int]]:
+    nodes: tuple[str, ...],
+    orig_to_ext: dict[str, str],
+) -> dict[str, dict[str, int]]:
     """Return value counts for each categorical column of a sample.
 
     Args:
@@ -67,7 +66,7 @@ def categorical_value_counts(
     Returns:
         Value counts for each categorical node.
     """
-    node_values: Dict[str, Dict[str, int]] = {}
+    node_values: dict[str, dict[str, int]] = {}
     for j in range(sample.shape[1]):
         counts = {
             categories[j][v]: int(c)
@@ -81,7 +80,7 @@ def categorical_value_counts(
 
 def crosstab_counts(
     combos: ndarray, combo_counts: ndarray, n_child_values: int
-) -> Tuple[ndarray, ndarray]:
+) -> tuple[ndarray, ndarray]:
     """Return a counts matrix of child values against parental combos.
 
     Args:

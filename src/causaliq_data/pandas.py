@@ -2,7 +2,7 @@
 
 from csv import QUOTE_MINIMAL
 from gzip import BadGzipFile
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import numpy as np
 from causaliq_core.utils import FileFormatError, is_valid_path, rndsf
@@ -87,8 +87,8 @@ class Pandas(Data):
     def _check_read_args(
         cls,
         filename: str,
-        dstype: Optional[Any],
-        N: Optional[int],
+        dstype: Any | None,
+        N: int | None,
     ) -> None:
         """Check the argument types and values for `read`."""
         if (
@@ -113,8 +113,8 @@ class Pandas(Data):
     def _read_csv_file(
         cls,
         filename: str,
-        dstype: Optional[Any],
-        N: Optional[int],
+        dstype: Any | None,
+        N: int | None,
     ) -> DataFrame:
         """Read a CSV file into a dataframe, mapping format errors."""
         try:
@@ -159,8 +159,8 @@ class Pandas(Data):
     def read(
         cls,
         filename: str,
-        dstype: Optional[Any] = None,
-        N: Optional[int] = None,
+        dstype: Any | None = None,
+        N: int | None = None,
     ) -> "Pandas":
         """Read a file into a Pandas object.
 
@@ -195,12 +195,12 @@ class Pandas(Data):
     # BNFit interface properties - expose instance variables as properties
 
     @property
-    def nodes(self) -> Tuple[str, ...]:
+    def nodes(self) -> tuple[str, ...]:
         """Return the nodes in the network."""
         return self._nodes
 
     @nodes.setter
-    def nodes(self, value: Tuple[str, ...]) -> None:
+    def nodes(self, value: tuple[str, ...]) -> None:
         """Set the nodes in the network."""
         self._nodes = value
 
@@ -225,22 +225,22 @@ class Pandas(Data):
         self._N = value
 
     @property
-    def node_values(self) -> Dict[str, Dict]:
+    def node_values(self) -> dict[str, dict]:
         """Return node values for categorical variables."""
         return self._node_values
 
     @node_values.setter
-    def node_values(self, value: Dict[str, Dict]) -> None:
+    def node_values(self, value: dict[str, dict]) -> None:
         """Set node values for categorical variables."""
         self._node_values = value
 
     @property
-    def node_types(self) -> Dict[str, str]:
+    def node_types(self) -> dict[str, str]:
         """Return the types of all nodes."""
         return self._node_types
 
     @node_types.setter
-    def node_types(self, value: Dict[str, str]) -> None:
+    def node_types(self, value: dict[str, str]) -> None:
         """Set the node types."""
         self._node_types = value
 
@@ -249,7 +249,7 @@ class Pandas(Data):
         filename: str,
         compress: bool = False,
         sf: int = 10,
-        zero: Optional[float] = None,
+        zero: float | None = None,
         preserve: bool = True,
     ) -> None:
         """Write data into a gzipped CSV data format file.
@@ -300,8 +300,8 @@ class Pandas(Data):
 
     def _update_sample(
         self,
-        old_N: Optional[int] = None,
-        old_ext_to_orig: Optional[Dict] = None,
+        old_N: int | None = None,
+        old_ext_to_orig: dict | None = None,
     ) -> None:
         """Update sample dataframe and node_values.
 
@@ -319,9 +319,7 @@ class Pandas(Data):
         # be more efficient and should produce the same result but seems to
         # result in different scores being produced at low sample sizes.
 
-        self.sample = DataFrame(self.df[: self.N].to_dict())[
-            node_order
-        ]  # type: ignore[assignment]
+        self.sample = DataFrame(self.df[: self.N].to_dict())[node_order]
         # self.sample = ((self.df[:self.N])[node_order])
 
         self.sample.rename(columns=self.orig_to_ext, inplace=True)
@@ -357,7 +355,7 @@ class Pandas(Data):
     def set_N(
         self,
         N: int,
-        seed: Optional[int] = None,
+        seed: int | None = None,
         random_selection: bool = False,
     ) -> None:
         """Set current working sample size,
@@ -398,7 +396,7 @@ class Pandas(Data):
                 frac=1.0, random_state=seed
             ).reset_index(drop=True)
 
-    def randomise_names(self, seed: Optional[int] = None) -> None:
+    def randomise_names(self, seed: int | None = None) -> None:
         """Randomise the node names that the learning algorithm uses.
 
         Allows sensitivity to these names to be assessed.
@@ -430,7 +428,7 @@ class Pandas(Data):
 
     @staticmethod
     def _check_marginals_args(
-        node: str, parents: Dict, values_reqd: bool
+        node: str, parents: dict, values_reqd: bool
     ) -> None:
         """Check the argument types for `marginals`."""
         if (
@@ -442,7 +440,7 @@ class Pandas(Data):
             raise TypeError("Pandas.marginals() bad arg type")
 
     @staticmethod
-    def _parent_combo_values(marginals: DataFrame) -> Tuple:
+    def _parent_combo_values(marginals: DataFrame) -> tuple:
         """Return the parent value combo for each contingency column."""
         return tuple(
             dict(
@@ -455,8 +453,8 @@ class Pandas(Data):
         )
 
     def _marginals_with_parents(
-        self, node: str, parents: Dict, values_reqd: bool
-    ) -> Tuple:
+        self, node: str, parents: dict, values_reqd: bool
+    ) -> tuple:
         """Return counts and values for marginals of a node with parents."""
         marginals = DataFrame.copy(
             crosstab(
@@ -491,7 +489,7 @@ class Pandas(Data):
 
         return (counts, maxcol, rowval, colval)
 
-    def _marginals_orphan(self, node: str, values_reqd: bool) -> Tuple:
+    def _marginals_orphan(self, node: str, values_reqd: bool) -> tuple:
         """Return counts and values for marginals of an orphan node."""
         marginals_dict = (
             self.sample[node].value_counts().sort_index().to_dict()
@@ -505,8 +503,8 @@ class Pandas(Data):
         return (counts, rowval)
 
     def marginals(
-        self, node: str, parents: Dict, values_reqd: bool = False
-    ) -> Tuple:
+        self, node: str, parents: dict, values_reqd: bool = False
+    ) -> tuple:
         """Return marginal counts for a node and its parents.
 
         Args:
@@ -556,7 +554,7 @@ class Pandas(Data):
 
         return (counts, maxcol, rowval, colval)
 
-    def values(self, nodes: Tuple[str, ...]) -> np.ndarray:
+    def values(self, nodes: tuple[str, ...]) -> np.ndarray:
         """Return the numeric values for the specified set of nodes.
 
         Suitable for passing into e.g. linearRegression fitting function.
@@ -584,7 +582,7 @@ class Pandas(Data):
 
         values = self.sample[list(nodes)].values
 
-        return np.array(values)  # type: ignore[no-any-return]
+        return np.array(values)
 
     def as_df(self) -> DataFrame:
         """Return the data as a Pandas dataframe.

@@ -1,7 +1,7 @@
 """Abstract data interfaces for causal discovery and BN fitting."""
 
 from abc import abstractmethod
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import numpy as np
 from causaliq_core.bn.bnfit import BNFit
@@ -50,7 +50,7 @@ class Data(BNFit):
     def __init__(self) -> None:
         pass
 
-    def set_order(self, order: Tuple[str, ...]) -> None:
+    def set_order(self, order: tuple[str, ...]) -> None:
         """Set the process order of the nodes to specified one.
 
         Args:
@@ -74,7 +74,7 @@ class Data(BNFit):
         if self.__class__.__name__ == "Pandas":
             self._update_sample()
 
-    def get_order(self) -> Tuple[str, ...]:
+    def get_order(self) -> tuple[str, ...]:
         """Get the current process order.
 
         Returns:
@@ -117,7 +117,7 @@ class Data(BNFit):
             else ("categorical" if n_cats == len(self.nodes) else "mixed")
         )
 
-    def _generate_random_names(self, seed: Optional[int]) -> None:
+    def _generate_random_names(self, seed: int | None) -> None:
         """Generate randomised external names for nodes."""
         if seed is None:
             self.ext_to_orig = {n: n for n in self.nodes}
@@ -136,7 +136,7 @@ class Data(BNFit):
     def set_N(
         self,
         N: int,
-        seed: Optional[int] = None,
+        seed: int | None = None,
         random_selection: bool = False,
     ) -> None:
         """Set current working sample size.
@@ -153,7 +153,7 @@ class Data(BNFit):
         pass
 
     @abstractmethod
-    def randomise_names(self, seed: Optional[int]) -> None:
+    def randomise_names(self, seed: int | None) -> None:
         """Randomise the node names that the learning algorithm uses.
 
         Allows sensitivity to node names to be assessed.
@@ -171,8 +171,8 @@ class Data(BNFit):
     @abstractmethod
     def _update_sample(
         self,
-        old_N: Optional[int] = None,
-        old_ext_to_orig: Optional[Dict] = None,
+        old_N: int | None = None,
+        old_ext_to_orig: dict | None = None,
     ) -> None:
         """Update the sample after changes to N or node ordering.
 
@@ -184,8 +184,8 @@ class Data(BNFit):
 
     @abstractmethod
     def marginals(
-        self, node: str, parents: Dict, values_reqd: bool = False
-    ) -> Tuple:
+        self, node: str, parents: dict, values_reqd: bool = False
+    ) -> tuple:
         """Return marginal counts for a node and its parents.
 
         Args:
@@ -207,7 +207,7 @@ class Data(BNFit):
         pass
 
     @abstractmethod
-    def values(self, nodes: Tuple[str, ...]) -> np.ndarray:
+    def values(self, nodes: tuple[str, ...]) -> np.ndarray:
         """Return the (float) values for specified nodes.
 
         Suitable for passing into e.g. linear regression fitting.
@@ -239,7 +239,7 @@ class Data(BNFit):
 
     @property
     @abstractmethod
-    def nodes(self) -> Tuple[str, ...]:
+    def nodes(self) -> tuple[str, ...]:
         """Column names in the dataset.
 
         Returns:
@@ -249,7 +249,7 @@ class Data(BNFit):
 
     @nodes.setter
     @abstractmethod
-    def nodes(self, value: Tuple[str, ...]) -> None:
+    def nodes(self, value: tuple[str, ...]) -> None:
         """Set column names."""
         pass
 
@@ -272,7 +272,7 @@ class Data(BNFit):
 
     @property
     @abstractmethod
-    def node_types(self) -> Dict[str, str]:
+    def node_types(self) -> dict[str, str]:
         """Node type mapping for each variable.
 
         Returns:
@@ -283,7 +283,7 @@ class Data(BNFit):
 
     @node_types.setter
     @abstractmethod
-    def node_types(self, value: Dict[str, str]) -> None:
+    def node_types(self, value: dict[str, str]) -> None:
         """Set node type mapping."""
         pass
 
@@ -305,7 +305,7 @@ class Data(BNFit):
 
     @property
     @abstractmethod
-    def node_values(self) -> Dict[str, Dict]:
+    def node_values(self) -> dict[str, dict]:
         """Node value counts for categorical variables.
 
         Returns:
@@ -316,7 +316,7 @@ class Data(BNFit):
 
     @node_values.setter
     @abstractmethod
-    def node_values(self, value: Dict[str, Dict]) -> None:
+    def node_values(self, value: dict[str, dict]) -> None:
         """Set node value counts."""
         pass
 

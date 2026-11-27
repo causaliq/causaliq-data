@@ -6,7 +6,7 @@
 # here because the score kernels need them and importing them from
 # causaliq_data.score would create a circular import.
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pandas import DataFrame
 
@@ -37,7 +37,7 @@ SCORE_PARAMS = {
 
 
 def _check_score_params_args(
-    params: Dict[str, Any], scores: Optional[List[str]]
+    params: dict[str, Any], scores: list[str] | None
 ) -> None:
     """Check the argument types and values for `check_score_params`."""
     if not isinstance(params, dict) or (
@@ -50,8 +50,8 @@ def _check_score_params_args(
 
 
 def _score_param_defaults(
-    params: Dict[str, Any], scores: Optional[List[str]]
-) -> Dict[str, Any]:
+    params: dict[str, Any], scores: list[str] | None
+) -> dict[str, Any]:
     """Return values for the score parameters that were not specified."""
     reqd = (
         list(SCORE_PARAMS)
@@ -61,7 +61,7 @@ def _score_param_defaults(
     return {p: SCORE_PARAMS[p] for p in reqd if p not in params}
 
 
-def _check_score_param_types(params: Dict[str, Any]) -> None:
+def _check_score_param_types(params: dict[str, Any]) -> None:
     """Check the types of the score parameters specified by the user."""
     if "base" in params and (
         (
@@ -87,7 +87,7 @@ def _check_score_param_types(params: Dict[str, Any]) -> None:
         raise TypeError("Wrong type for penalty multiplier")
 
 
-def _check_score_param_values(params: Dict[str, Any]) -> None:
+def _check_score_param_values(params: dict[str, Any]) -> None:
     """Check the values of the score parameters specified by the user."""
     if "base" in params and params["base"] not in [2, 10, "e"]:
         raise ValueError("Bad value for base score param")
@@ -100,8 +100,8 @@ def _check_score_param_values(params: Dict[str, Any]) -> None:
 
 
 def check_score_params(
-    params: Dict[str, Any], scores: Optional[List[str]] = None
-) -> Dict[str, Any]:
+    params: dict[str, Any], scores: list[str] | None = None
+) -> dict[str, Any]:
     """Check score parameters specified by user and supply default values.
 
     Parameters supported are:
@@ -132,9 +132,9 @@ def check_score_params(
     return params
 
 
-def _value_counts(data: DataFrame) -> Dict[Any, Dict[Any, int]]:
+def _value_counts(data: DataFrame) -> dict[Any, dict[Any, int]]:
     """Return the count of each value for each column in the data."""
-    value_counts: Dict[Any, Dict[Any, int]] = {}
+    value_counts: dict[Any, dict[Any, int]] = {}
     for col in data.columns:
         counts = data[col].value_counts()
         value_counts[col] = {
@@ -145,7 +145,7 @@ def _value_counts(data: DataFrame) -> Dict[Any, Dict[Any, int]]:
 
 
 def _count_free_params(
-    node: str, value_counts: Dict[Any, Dict[Any, int]], graph: Any
+    node: str, value_counts: dict[Any, dict[Any, int]], graph: Any
 ) -> int:
     """Return the number of free parameters for a single node."""
     cardinality = len(value_counts[node])

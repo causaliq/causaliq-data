@@ -2,12 +2,12 @@
 #   Functions providing probabilistic independence tests
 #
 
-from typing import Any, Dict, List, Optional, Tuple, Union, cast
+from typing import Any, Union, cast
 
 from causaliq_core.bn import BN
 from numpy import log
 from pandas import DataFrame, crosstab
-from scipy import stats  # type: ignore
+from scipy import stats
 
 from causaliq_data.pandas import Pandas
 
@@ -17,7 +17,7 @@ TEST_PARAMS = {"alpha": 0.05}
 MIN_P_VALUE = 1e-30  # p-values below this are considered to be zero
 
 
-def check_test_params(params: Dict[str, Any]) -> Dict[str, Any]:
+def check_test_params(params: dict[str, Any]) -> dict[str, Any]:
     """Checks independence test parameters and sets defaults.
 
     Args:
@@ -45,10 +45,10 @@ def check_test_params(params: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _accumulate_results(
-    actuals: List[List[int]],
-    types: List[str],
-    results: Dict[str, Dict[str, Union[int, float]]],
-) -> Dict[str, Dict[str, Union[int, float]]]:
+    actuals: list[list[int]],
+    types: list[str],
+    results: dict[str, dict[str, Union[int, float]]],
+) -> dict[str, dict[str, Union[int, float]]]:
     """Accumulate test statistics for one contingency table."""
     for type in types:
         df, statistic = _statistic(actuals, type)
@@ -60,8 +60,8 @@ def _accumulate_results(
 def _combination_row(
     contingency: DataFrame,
     col: Any,
-    missing_y_values: Optional[List[int]],
-) -> Optional[List[int]]:
+    missing_y_values: list[int] | None,
+) -> list[int] | None:
     """Return the contingency row for a column, or the missing values."""
     if col in contingency.columns:
         return list(contingency[col].to_dict().values())
@@ -72,8 +72,8 @@ def _actuals_for_combination(
     contingency: DataFrame,
     pv: Any,
     y_values: Any,
-    missing_y_values: Optional[List[int]],
-) -> List[List[int]]:
+    missing_y_values: list[int] | None,
+) -> list[list[int]]:
     """Return the contingency rows for one conditioning value combo."""
     actuals = []
     for y in y_values:
@@ -86,12 +86,12 @@ def _actuals_for_combination(
 
 def _conditional_results(
     contingency: DataFrame,
-    z: List[str],
+    z: list[str],
     y_values: Any,
-    missing_y_values: Optional[List[int]],
-    types_list: List[str],
-    results: Dict[str, Dict[str, Union[int, float]]],
-) -> Dict[str, Dict[str, Union[int, float]]]:
+    missing_y_values: list[int] | None,
+    types_list: list[str],
+    results: dict[str, dict[str, Union[int, float]]],
+) -> dict[str, dict[str, Union[int, float]]]:
     """Accumulate statistics for each conditioning value combination."""
     pvs = contingency.columns.to_frame(index=False).groupby(z).size().index
     for pv in pvs:
@@ -104,17 +104,17 @@ def _conditional_results(
 
 def _unconditional_results(
     contingency: DataFrame,
-    types_list: List[str],
-    results: Dict[str, Dict[str, Union[int, float]]],
-) -> Dict[str, Dict[str, Union[int, float]]]:
+    types_list: list[str],
+    results: dict[str, dict[str, Union[int, float]]],
+) -> dict[str, dict[str, Union[int, float]]]:
     """Accumulate statistics for the whole contingency table."""
     actuals = [list(contingency.iloc[i]) for i in range(len(contingency))]
     return _accumulate_results(actuals, types_list, results)
 
 
 def _contingency_from_data(
-    data: DataFrame, x: str, y: str, z: List[str]
-) -> Tuple[DataFrame, Any, List[int]]:
+    data: DataFrame, x: str, y: str, z: list[str]
+) -> tuple[DataFrame, Any, list[int]]:
     """Return contingency table and y values derived from data.
 
     All required contingency tables are generated in one go: rows are values
@@ -126,15 +126,15 @@ def _contingency_from_data(
     contingency = crosstab(data[x], cols)
 
     y_values = data[y].unique()  # used to order y values consistently
-    missing_y_values: List[int] = [0] * len(
+    missing_y_values: list[int] = [0] * len(
         data[x].unique()
     )  # filler for missing y values
     return contingency, y_values, missing_y_values
 
 
 def _contingency_from_bn(
-    bn: BN, x: str, y: str, z: List[str], N: int
-) -> Tuple[DataFrame, Any, List[int]]:
+    bn: BN, x: str, y: str, z: list[str], N: int
+) -> tuple[DataFrame, Any, list[int]]:
     """Return contingency table and y values derived from BN parameters."""
     contingency = (
         bn.marginal_distribution(x, sorted(z) + [y])
@@ -148,8 +148,8 @@ def _contingency_from_bn(
 
 
 def _add_p_values(
-    results: Dict[str, Dict[str, Union[int, float]]],
-    types_list: List[str],
+    results: dict[str, dict[str, Union[int, float]]],
+    types_list: list[str],
 ) -> None:
     """Add the p-value of each statistic to the results."""
     for type in types_list:
@@ -162,11 +162,11 @@ def _add_p_values(
 def indep(
     x: str,
     y: str,
-    z: Union[str, List[str], None],
+    z: Union[str, list[str], None],
     data: Union[DataFrame, str, None],
-    bn: Optional[BN] = None,
+    bn: BN | None = None,
     N: int = 1000000000,
-    types: Union[str, List[str]] = "mi",
+    types: Union[str, list[str]] = "mi",
 ) -> DataFrame:
     """Checks whether variables x and y are independent.
 
@@ -203,7 +203,7 @@ def indep(
             bn, x, y, z, N
         )
 
-    results: Dict[str, Dict[str, Union[int, float]]] = {
+    results: dict[str, dict[str, Union[int, float]]] = {
         t: {"df": 0, "statistic": 0.0} for t in types_list
     }
 
@@ -222,10 +222,10 @@ def indep(
 
     # return independence test results as a DataFrame
 
-    return DataFrame.from_dict(results)  # type: ignore[no-any-return]
+    return DataFrame.from_dict(results)
 
 
-def _check_indep_actuals(actuals: List[List[int]], type: str) -> None:
+def _check_indep_actuals(actuals: list[list[int]], type: str) -> None:
     """Check the contingency table and statistic type arguments."""
     if (
         not isinstance(actuals, list)
@@ -252,7 +252,7 @@ def _cell_contribution(actual: int, expected: float, type: str) -> float:
     return 0.0
 
 
-def _statistic(actuals: List[List[int]], type: str) -> Tuple[int, float]:
+def _statistic(actuals: list[list[int]], type: str) -> tuple[int, float]:
     """Returns variance (from independence) statistic.
 
     Returns chi-squared or MI for a 2 variable contingency table.
@@ -294,9 +294,9 @@ def _statistic(actuals: List[List[int]], type: str) -> Tuple[int, float]:
 def _check_indep_arg_types(
     x: str,
     y: str,
-    z: Union[str, List[str], None],
-    types: Union[str, List[str]],
-    bn: Optional[BN],
+    z: Union[str, list[str], None],
+    types: Union[str, list[str]],
+    bn: BN | None,
     data: Union[DataFrame, str, None],
     N: int,
 ) -> None:
@@ -334,12 +334,10 @@ def _check_indep_arg_types(
 
 def _indep_data_from_args(
     data: Union[DataFrame, str, None],
-) -> Tuple[Optional[DataFrame], Optional[str]]:
+) -> tuple[DataFrame | None, str | None]:
     """Return processed data and file path from the data argument."""
-    data_file_path: Optional[str] = (
-        None if isinstance(data, DataFrame) else data
-    )
-    processed_data: Optional[DataFrame] = None
+    data_file_path: str | None = None if isinstance(data, DataFrame) else data
+    processed_data: DataFrame | None = None
     if data_file_path:
         processed_data = Pandas.read(data_file_path, dstype="categorical").df
     elif isinstance(data, DataFrame):
@@ -348,9 +346,9 @@ def _indep_data_from_args(
 
 
 def _check_indep_variables(
-    varlist: List[str],
-    processed_data: Optional[DataFrame],
-    bn: Optional[BN],
+    varlist: list[str],
+    processed_data: DataFrame | None,
+    bn: BN | None,
 ) -> None:
     """Check the variables tested exist in the data or the BN."""
     if len(varlist) != len(set(varlist)):
@@ -364,7 +362,7 @@ def _check_indep_variables(
             raise ValueError("Variables not in BN")
 
 
-def _check_indep_tests(N: int, types: List[str]) -> None:
+def _check_indep_tests(N: int, types: list[str]) -> None:
     """Check the sample size and requested test names."""
     if N < 0:
         raise ValueError("indep() sample size is negative")
@@ -380,12 +378,12 @@ def _check_indep_tests(N: int, types: List[str]) -> None:
 def check_indep_args(
     x: str,
     y: str,
-    z: Union[str, List[str], None],
+    z: Union[str, list[str], None],
     data: Union[DataFrame, str, None],
-    bn: Optional[BN] = None,
+    bn: BN | None = None,
     N: int = 0,
-    types: Union[str, List[str]] = "mi",
-) -> Tuple[List[str], Optional[DataFrame], Optional[str], List[str]]:
+    types: Union[str, list[str]] = "mi",
+) -> tuple[list[str], DataFrame | None, str | None, list[str]]:
     """Check arguments supplied for independence test functions.
 
     Args:

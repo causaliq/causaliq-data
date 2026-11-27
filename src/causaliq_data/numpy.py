@@ -2,7 +2,7 @@
 
 from gzip import BadGzipFile
 from math import prod
-from typing import Any, Dict, Optional, Tuple, cast
+from typing import Any, cast
 
 from causaliq_core.utils import FileFormatError, is_valid_path
 from causaliq_core.utils.timing import Timing
@@ -63,7 +63,7 @@ class NumPy(Data):
         self,
         data: ndarray,
         dstype: DatasetType,
-        col_values: Dict[str, Optional[Tuple[str, ...]]],
+        col_values: dict[str, tuple[str, ...] | None],
     ) -> None:
 
         if (
@@ -123,14 +123,14 @@ class NumPy(Data):
         self.dstype = dstype if isinstance(dstype, str) else dstype.value
 
         # set N, sample and categorical node_values and counts for that N
-        self._node_values: Dict[str, Dict[str, int]] = (
+        self._node_values: dict[str, dict[str, int]] = (
             {}
         )  # Initialize empty, will be populated by set_N
         self.set_N(N=data.shape[0])
 
     @staticmethod
     def _check_read_args(
-        filename: str, dstype: DatasetType, N: Optional[int]
+        filename: str, dstype: DatasetType, N: int | None
     ) -> None:
         """Check the argument types and values for `read`."""
         if (
@@ -150,7 +150,7 @@ class NumPy(Data):
 
     @staticmethod
     def _read_csv_to_df(
-        filename: str, dstype: DatasetType, N: Optional[int]
+        filename: str, dstype: DatasetType, N: int | None
     ) -> DataFrame:
         """Read a CSV file into a dataframe, mapping format errors."""
         try:
@@ -185,7 +185,7 @@ class NumPy(Data):
 
     @classmethod
     def read(
-        cls, filename: str, dstype: DatasetType, N: Optional[int] = None
+        cls, filename: str, dstype: DatasetType, N: int | None = None
     ) -> "NumPy":
         """Read a file into a NumPy object.
 
@@ -279,7 +279,7 @@ class NumPy(Data):
             # col_values just holds node names for continuous data
 
             col_values = cast(
-                Dict[str, Optional[Tuple[str, ...]]],
+                dict[str, tuple[str, ...] | None],
                 {col: None for col in df.columns},
             )
 
@@ -293,7 +293,7 @@ class NumPy(Data):
     @staticmethod
     def _check_set_N_args(
         N: int,
-        seed: Optional[int],
+        seed: int | None,
         random_selection: bool,
         n_rows: int,
     ) -> None:
@@ -315,7 +315,7 @@ class NumPy(Data):
             raise ValueError("NumPy.set_N() bad arg value")
 
     def _select_sample(
-        self, N: int, seed: Optional[int], random_selection: bool
+        self, N: int, seed: int | None, random_selection: bool
     ) -> ndarray:
         """Return a sample of N rows for the requested selection."""
         rng = (
@@ -379,7 +379,7 @@ class NumPy(Data):
     def set_N(
         self,
         N: int,
-        seed: Optional[int] = None,
+        seed: int | None = None,
         random_selection: bool = False,
     ) -> None:
         """Set current working sample size, and optionally randomise
@@ -404,12 +404,12 @@ class NumPy(Data):
 
     def _update_sample(
         self,
-        old_N: Optional[int] = None,
-        old_ext_to_orig: Optional[Dict] = None,
+        old_N: int | None = None,
+        old_ext_to_orig: dict | None = None,
     ) -> None:
         pass
 
-    def randomise_names(self, seed: Optional[int] = None) -> None:
+    def randomise_names(self, seed: int | None = None) -> None:
         """Randomises the node names that the learning algorithm uses.
 
         So sensitivity to these names can be assessed.
@@ -473,7 +473,7 @@ class NumPy(Data):
 
     @staticmethod
     def _check_numpy_marginals_args(
-        node: str, parents: Dict, values_reqd: bool
+        node: str, parents: dict, values_reqd: bool
     ) -> None:
         """Check the argument types for `marginals`."""
         if (
@@ -484,7 +484,7 @@ class NumPy(Data):
         ):
             raise TypeError("NumPy.marginals() bad arg type")
 
-    def _marginal_nodes(self, node: str, parents: Dict) -> tuple:
+    def _marginal_nodes(self, node: str, parents: dict) -> tuple:
         """Return the nodes (external names) for which marginals required."""
         nodes = tuple([node] + parents[node]) if node in parents else (node,)
         if len(set(nodes) - set(self.node_values)) != 0 or len(nodes) != len(
@@ -496,7 +496,7 @@ class NumPy(Data):
 
     def _counts_for_single_node(
         self, node: str, values_reqd: bool
-    ) -> Tuple[ndarray, Optional[tuple]]:
+    ) -> tuple[ndarray, tuple | None]:
         """Return marginals counts and row values for a single node."""
         counts = array(
             [[c] for c in self.node_values[node].values()], dtype=int
@@ -556,7 +556,7 @@ class NumPy(Data):
         return (counts, maxcol, rowval, colval)
 
     def marginals(
-        self, node: str, parents: Dict, values_reqd: bool = False
+        self, node: str, parents: dict, values_reqd: bool = False
     ) -> tuple:
         """Return marginal counts for a node and its parents.
 
@@ -666,12 +666,12 @@ class NumPy(Data):
     # BNFit interface properties - expose instance variables as properties
 
     @property
-    def nodes(self) -> Tuple[str, ...]:
+    def nodes(self) -> tuple[str, ...]:
         """Return the nodes in the network."""
         return self._nodes
 
     @nodes.setter
-    def nodes(self, value: Tuple[str, ...]) -> None:
+    def nodes(self, value: tuple[str, ...]) -> None:
         """Set the nodes in the network."""
         self._nodes = value
 
@@ -696,22 +696,22 @@ class NumPy(Data):
         self._N = value
 
     @property
-    def node_values(self) -> Dict[str, Dict[str, int]]:
+    def node_values(self) -> dict[str, dict[str, int]]:
         """Return node values for categorical variables."""
         return self._node_values
 
     @node_values.setter
-    def node_values(self, value: Dict[str, Dict[str, int]]) -> None:
+    def node_values(self, value: dict[str, dict[str, int]]) -> None:
         """Set node values for categorical variables."""
         self._node_values = value
 
     @property
-    def node_types(self) -> Dict[str, str]:
+    def node_types(self) -> dict[str, str]:
         """Return the types of all nodes."""
         return self._node_types
 
     @node_types.setter
-    def node_types(self, value: Dict[str, str]) -> None:
+    def node_types(self, value: dict[str, str]) -> None:
         """Set the node types."""
         self._node_types = value
 
@@ -720,7 +720,7 @@ class NumPy(Data):
         filename: str,
         compress: bool = False,
         sf: int = 10,
-        zero: Optional[float] = None,
+        zero: float | None = None,
         preserve: bool = True,
     ) -> None:
         """Write data into a gzipped CSV data format file.

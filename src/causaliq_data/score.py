@@ -7,7 +7,7 @@
 # scores in score_gaussian and parameter handling in score_params. The
 # dispatch layer (node_score) and the network scores stay in this module.
 
-from typing import Any, Dict, Iterable, List, Tuple, Union
+from typing import Any, Iterable, Union
 
 from pandas import DataFrame
 
@@ -49,12 +49,12 @@ __all__ = [
 
 def node_score(
     node: str,
-    parents: Dict[str, List[str]],
-    types: List[str],
-    params: Dict[str, Any],
+    parents: dict[str, list[str]],
+    types: list[str],
+    params: dict[str, Any],
     data: Data,
     counts_reqd: bool = False,
-) -> Union[Dict[str, float], Tuple[Dict[str, float], Dict[str, Any]]]:
+) -> Union[dict[str, float], tuple[dict[str, float], dict[str, Any]]]:
     """Return specified types of decomposable scores for a node.
 
     Args:
@@ -81,12 +81,12 @@ def node_score(
 
 def gaussian_node_score(
     node: str,
-    parents: Dict[str, List[str]],
-    types: List[str],
-    params: Dict[str, Any],
+    parents: dict[str, list[str]],
+    types: list[str],
+    params: dict[str, Any],
     data: Data,
     counts_reqd: bool,
-) -> Union[Dict[str, float], Tuple[Dict[str, float], Dict[str, Any]]]:
+) -> Union[dict[str, float], tuple[dict[str, float], dict[str, Any]]]:
     """Return specified types of decomposable scores for a Gaussian node.
 
     Args:
@@ -120,12 +120,12 @@ def gaussian_node_score(
 
 def categorical_node_score(
     node: str,
-    parents: Dict[str, List[str]],
-    types: List[str],
-    params: Dict[str, Any],
+    parents: dict[str, list[str]],
+    types: list[str],
+    params: dict[str, Any],
     data: Data,
     counts_reqd: bool = False,
-) -> Union[Dict[str, float], Tuple[Dict[str, float], Dict[str, Any]]]:
+) -> Union[dict[str, float], tuple[dict[str, float], dict[str, Any]]]:
     """Return specified types of decomposable scores for categorical node.
 
     Args:
@@ -148,7 +148,7 @@ def categorical_node_score(
     # get statistics on contingency table counts
 
     if counts_reqd is True:
-        counts_info: Dict[str, Any] = {
+        counts_info: dict[str, Any] = {
             "mean": counts.mean().item(),
             "max": counts.max().item(),
             "min": counts.min().item(),
@@ -158,7 +158,7 @@ def categorical_node_score(
     else:
         counts_info = {"mean": 0, "max": 0, "min": 0, "lt5": 0, "fpa": 0}
 
-    scores: Dict[str, float] = {}
+    scores: dict[str, float] = {}
     reqd_types = [t for t in types if t in ENTROPY_SCORES]
     if reqd_types:
         scores = entropy_scores(
@@ -175,7 +175,7 @@ def _check_dag_score_args(
     dag: Any,
     data: Data,
     types: Iterable[str],
-    params: Dict[str, Any],
+    params: dict[str, Any],
 ) -> None:
     """Check the argument types and values for `dag_score`."""
     if (
@@ -200,7 +200,7 @@ def _check_dag_score_args(
         raise ValueError("bad score types for dag_score")
 
 
-def _check_unistate(data: Data, params: Dict[str, Any]) -> None:
+def _check_unistate(data: Data, params: dict[str, Any]) -> None:
     """Check no variables are single state, unless it is allowed."""
     if (
         "unistate_ok" not in params or params["unistate_ok"] is not True
@@ -210,16 +210,16 @@ def _check_unistate(data: Data, params: Dict[str, Any]) -> None:
 
 def _node_scores(
     nodes: Iterable[str],
-    parents: Dict[str, List[str]],
-    types: List[str],
-    params: Dict[str, Any],
+    parents: dict[str, list[str]],
+    types: list[str],
+    params: dict[str, Any],
     data: Data,
-) -> Dict[str, List[Any]]:
+) -> dict[str, list[Any]]:
     """Return per-node scores with a column per score type.
 
     Loop over all nodes computing all required scores.
     """
-    scores: Dict[str, List[Any]] = {
+    scores: dict[str, list[Any]] = {
         score_type: [] for score_type in types + ["node"]
     }
     for node in nodes:
@@ -234,7 +234,7 @@ def _node_scores(
 
 
 def dag_score(
-    dag: Any, data: Data, types: Union[str, List[str]], params: Dict[str, Any]
+    dag: Any, data: Data, types: Union[str, list[str]], params: dict[str, Any]
 ) -> DataFrame:
     """Return per-node DAG+data network scores of specified types.
 
@@ -263,14 +263,14 @@ def dag_score(
 
     scores = _node_scores(dag.nodes, dag.parents, types, params, data)
 
-    return DataFrame(scores).set_index("node")  # type: ignore[no-any-return]
+    return DataFrame(scores).set_index("node")
 
 
 def _check_bn_score_args(
     bn: Any,
     N: int,
     types: Iterable[str],
-    params: Dict[str, Any],
+    params: dict[str, Any],
 ) -> None:
     """Check the argument types and values for `bn_score`."""
     if (
@@ -293,7 +293,7 @@ def _check_bn_score_args(
 
 
 def bn_score(
-    bn: Any, N: int, types: Union[str, List[str]], params: Dict[str, Any]
+    bn: Any, N: int, types: Union[str, list[str]], params: dict[str, Any]
 ) -> DataFrame:
     """Return per-node scores of specified types for Bayesian Network.
 
@@ -330,4 +330,4 @@ def bn_score(
         bn.dag.ordered_nodes(), bn.dag.parents, types, params, data
     )
 
-    return DataFrame(scores).set_index("node")  # type: ignore[no-any-return]
+    return DataFrame(scores).set_index("node")

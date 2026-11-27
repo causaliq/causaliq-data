@@ -4,9 +4,9 @@
 # module size limits. The names here are re-exported by causaliq_data.score,
 # so their import path and behaviour are unchanged.
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
-import scipy.stats as stats  # type: ignore
+import scipy.stats as stats
 from causaliq_core.utils import ln
 from causaliq_core.utils.timing import Timing
 from numpy import cov, fill_diagonal, float64
@@ -16,13 +16,13 @@ from numpy import pi
 from numpy import sqrt as npsqrt
 from numpy import sum as npsum
 from numpy.linalg import det
-from scipy.special import gammaln  # type: ignore
+from scipy.special import gammaln
 from sklearn.linear_model import LinearRegression  # type: ignore
 
 from causaliq_data import Data
 
 
-def _bge_dimensions(data: Data) -> Tuple[float64, float64, float64]:
+def _bge_dimensions(data: Data) -> tuple[float64, float64, float64]:
     """Return the BGE sample size, node count and prior weight."""
     N = float64(data.N)
     n = float64(len(data.nodes))
@@ -75,10 +75,10 @@ def _prior_det_term(
 def _posterior_dets(
     data: Data,
     node: str,
-    parents: Dict[str, List[str]],
+    parents: dict[str, list[str]],
     N: float64,
     prior: float64,
-) -> Tuple[float64, float64]:
+) -> tuple[float64, float64]:
     """Return the BGE posterior determinants with and without child.
 
     The covariance matrix of the parents and child is scaled by (N - 1),
@@ -95,7 +95,7 @@ def _posterior_dets(
     return Ryy_det, Tyy_det
 
 
-def _apply_log_base(bge: float64, params: Dict[str, Any]) -> float64:
+def _apply_log_base(bge: float64, params: dict[str, Any]) -> float64:
     """Return the BGE converted to the requested logarithm base."""
     if params is not None and "base" in params and params["base"] != "e":
         return float64(bge / nplog(params["base"]))
@@ -105,8 +105,8 @@ def _apply_log_base(bge: float64, params: Dict[str, Any]) -> float64:
 
 def bayesian_gaussian_score(
     node: str,
-    parents: Dict[str, List[str]],
-    params: Dict[str, Any],
+    parents: dict[str, list[str]],
+    params: dict[str, Any],
     data: Data,
 ) -> float:
     """Compute Bayesian Gaussian Equivalent (BGE) for a node.
@@ -167,8 +167,8 @@ def bayesian_gaussian_score(
 
 
 def _orphan_gaussian_loglik(
-    data: Data, node: str, scale: int, start: Optional[float]
-) -> Tuple[float, int, Optional[float]]:
+    data: Data, node: str, scale: int, start: float | None
+) -> tuple[float, int, float | None]:
     """Return the orphan node log likelihood and free parameter count.
 
     Computes the mean and corrected SD of the values and sums the
@@ -188,10 +188,10 @@ def _orphan_gaussian_loglik(
 def _child_gaussian_loglik(
     data: Data,
     node: str,
-    parents: Dict[str, List[str]],
+    parents: dict[str, list[str]],
     scale: int,
-    start: Optional[float],
-) -> Tuple[float, int, Optional[float]]:
+    start: float | None,
+) -> tuple[float, int, float | None]:
     """Return the child node log likelihood and free parameter count.
 
     Fits a linear regression predicting child values from parents. The
@@ -214,10 +214,10 @@ def _child_gaussian_loglik(
 
 def entropy_gaussian_score(
     node: str,
-    parents: Dict[str, List[str]],
-    params: Dict[str, Any],
+    parents: dict[str, list[str]],
+    params: dict[str, Any],
     data: Data,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """Return entropy-based scores for a Gaussian node.
 
     Args:

@@ -4,7 +4,7 @@
 # adapter module stays within the module size limits. Behaviour is
 # unchanged; they operate on the dataframe passed in.
 
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 from numpy import ndarray
 from pandas import Categorical, DataFrame, factorize
@@ -24,7 +24,7 @@ def _unique_values(uniques: Any) -> Any:
 
 def category_codes(
     df: DataFrame, max_category: int
-) -> Dict[str, Optional[Tuple[str, ...]]]:
+) -> dict[str, tuple[str, ...] | None]:
     """Convert categorical columns to integer codes, in place.
 
     Captures the code to value mapping as a tuple for each node, i.e.
@@ -40,7 +40,7 @@ def category_codes(
     Raises:
         ValueError: If a column has too many category values.
     """
-    col_values: Dict[str, Optional[Tuple[str, ...]]] = {}
+    col_values: dict[str, tuple[str, ...] | None] = {}
     for col in df.columns:
         df[col], uniques = factorize(df[col])
         if len(uniques) > max_category:

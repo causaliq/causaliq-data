@@ -1,6 +1,6 @@
 # Concrete subclass of Data which implements an oracle data source
 
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import numpy as np
 from numpy import float64
@@ -32,7 +32,7 @@ class Oracle(Data):
     def set_N(
         self,
         N: int,
-        seed: Optional[int] = None,
+        seed: int | None = None,
         random_selection: bool = False,
     ) -> None:
         """
@@ -55,8 +55,8 @@ class Oracle(Data):
         self._N = N
 
     def marginals(
-        self, node: str, parents: Dict, values_reqd: bool = False
-    ) -> Tuple:
+        self, node: str, parents: dict, values_reqd: bool = False
+    ) -> tuple:
         """
         Return marginal counts for a node and its parents.
 
@@ -110,7 +110,7 @@ class Oracle(Data):
 
         return (counts, maxcol, rowval, colval)
 
-    def values(self, nodes: Tuple[str, ...]) -> np.ndarray:
+    def values(self, nodes: tuple[str, ...]) -> np.ndarray:
         """
         Return the (float) values for the specified set of nodes.
 
@@ -124,12 +124,12 @@ class Oracle(Data):
 
     def _update_sample(
         self,
-        old_N: Optional[int] = None,
-        old_ext_to_orig: Optional[Dict] = None,
+        old_N: int | None = None,
+        old_ext_to_orig: dict | None = None,
     ) -> None:
         pass
 
-    def randomise_names(self, seed: Optional[int]) -> None:
+    def randomise_names(self, seed: int | None) -> None:
         """
         Randomises the node names that the learning algorithm uses
         (so sensitivity to these names can be assessed).
@@ -157,12 +157,12 @@ class Oracle(Data):
     # BNFit interface properties - expose instance variables as properties
 
     @property
-    def nodes(self) -> Tuple[str, ...]:
+    def nodes(self) -> tuple[str, ...]:
         """Return the nodes in the network."""
         return self._nodes
 
     @nodes.setter
-    def nodes(self, value: Tuple[str, ...]) -> None:
+    def nodes(self, value: tuple[str, ...]) -> None:
         """Set the nodes in the network."""
         self._nodes = value
 
@@ -187,22 +187,22 @@ class Oracle(Data):
         self._N = value
 
     @property
-    def node_values(self) -> Dict:
+    def node_values(self) -> dict:
         """Return node values - not applicable for Oracle adapter."""
         return {}
 
     @node_values.setter
-    def node_values(self, value: Dict) -> None:
+    def node_values(self, value: dict) -> None:
         """Set node values - not applicable for Oracle adapter."""
         pass
 
     @property
-    def node_types(self) -> Dict:
+    def node_types(self) -> dict:
         """Return the types of all nodes."""
         return self._node_types
 
     @node_types.setter
-    def node_types(self, value: Dict) -> None:
+    def node_types(self, value: dict) -> None:
         """Set the node types."""
         self._node_types = value
 

@@ -4,20 +4,20 @@
 # module size limits. The names here are re-exported by causaliq_data.score,
 # so their import path and behaviour are unchanged.
 
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Union
 
 from causaliq_core.utils import ln
 from numpy import log as nplog
 from numpy import ndarray
 from numpy import sum as npsum
 from numpy import zeros
-from scipy.special import gammaln  # type: ignore
+from scipy.special import gammaln
 
 from causaliq_data.score_params import BAYESIAN_SCORES, ENTROPY_SCORES
 
 
 def _check_bayesian_score_args(
-    N_ijk: ndarray, q_i: int, type: str, params: Dict[str, Any]
+    N_ijk: ndarray, q_i: int, type: str, params: dict[str, Any]
 ) -> None:
     """Check the argument types and values for `bayesian_score`."""
     if (
@@ -35,7 +35,7 @@ def _check_bayesian_score_args(
 
 def _prior_counts(
     type: str, q_i: int, r_i: int, iss: float
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     """Return the prior counts NP_ijk and NP_ij.
 
     Use variable names to match literature: NP_ijk is N-prime subscript ijk,
@@ -50,7 +50,7 @@ def _prior_counts(
 
 
 def bayesian_score(
-    N_ijk: ndarray, q_i: int, type: str, params: Dict[str, Any]
+    N_ijk: ndarray, q_i: int, type: str, params: dict[str, Any]
 ) -> float:
     """Return Bayesian based scores for marginal counts (for a node).
 
@@ -100,8 +100,8 @@ def bayesian_score(
 
 def _check_entropy_scores_args(
     Nijk: ndarray,
-    types: List[str],
-    params: Dict[str, Any],
+    types: list[str],
+    params: dict[str, Any],
     N: int,
     free_params: int,
 ) -> None:
@@ -144,11 +144,11 @@ def _loglik_value(Nijk: ndarray, base: Union[int, str]) -> float:
 
 def _entropy_score_values(
     loglik_val: float,
-    types: List[str],
-    params: Dict[str, Any],
+    types: list[str],
+    params: dict[str, Any],
     N: int,
     free_params: int,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """Return the requested entropy scores with complexity penalties."""
     base: Union[int, str] = (
         params["base"] if "base" in params else 10
@@ -157,7 +157,7 @@ def _entropy_score_values(
 
     # Compute specific scores with particular complexity penalties
 
-    scores: Dict[str, float] = {}
+    scores: dict[str, float] = {}
     if "loglik" in types:
         scores["loglik"] = loglik_val
 
@@ -172,11 +172,11 @@ def _entropy_score_values(
 
 def entropy_scores(
     Nijk: ndarray,
-    types: Union[str, List[str]],
-    params: Dict[str, Any],
+    types: Union[str, list[str]],
+    params: dict[str, Any],
     N: int,
     free_params: int,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """Return entropy based scores for marginal counts (for a node).
 
     Args:

@@ -1,6 +1,5 @@
 # Data preprocessing utilities for Bayesian Networks
 
-from typing import List, Tuple
 
 from causaliq_core.bn import BN
 from causaliq_core.graph import DAG
@@ -9,7 +8,7 @@ from pandas import DataFrame
 
 def remove_single_valued(
     bn: BN, data: DataFrame
-) -> Tuple[BN, DataFrame, List[str]]:
+) -> tuple[BN, DataFrame, list[str]]:
     """Remove nodes from BN that just contain a single value in data.
 
     This can be useful when syntheticaly generated data is used for
