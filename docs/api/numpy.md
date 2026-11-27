@@ -102,7 +102,7 @@ if seed is not None and seed != 0:
     self._sample = self.sample[order]
 ```
 
-### `unique(j_reqd, num_vals) -> Tuple[ndarray, ndarray]`
+### `unique(j_reqd, num_vals) -> tuple[ndarray, ndarray]`
 
 Highly optimized unique value detection and counting.
 
@@ -174,7 +174,7 @@ data.set_N(1000, seed=42, random_selection=False)
 
 ## Statistical Operations
 
-### `marginals(node, parents, values_reqd=False) -> Tuple`
+### `marginals(node, parents, values_reqd=False) -> tuple`
 
 Efficient marginal computation using NumPy operations.
 

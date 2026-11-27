@@ -81,7 +81,7 @@ print(f"Sample size: {oracle.N}")
 
 ## Statistical Operations
 
-### `marginals(node, parents, values_reqd=False) -> Tuple`
+### `marginals(node, parents, values_reqd=False) -> tuple`
 
 Provides exact marginal distributions from the Bayesian Network.
 

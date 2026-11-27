@@ -69,7 +69,7 @@ passes with 100 % coverage, and behaviour is unchanged.
 
 Every slice was checked with `black --check`, `isort --check-only`, `flake8`,
 `mypy src/` and the strict rules report, followed by the full test suite at
-100 % coverage on Python 3.9 to 3.13 in CI.
+100 % coverage on Python 3.10 to 3.14 in CI.
 
 | Stage | Statements (coverage) | Coverage |
 | --- | --- | --- |

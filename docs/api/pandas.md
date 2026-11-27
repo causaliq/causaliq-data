@@ -101,7 +101,7 @@ Randomizes node names for algorithm sensitivity testing.
 
 ## Statistical Operations
 
-### `marginals(node, parents, values_reqd=False) -> Tuple`
+### `marginals(node, parents, values_reqd=False) -> tuple`
 
 Computes marginal distributions for a node given its parents.
 
@@ -122,7 +122,7 @@ Computes marginal distributions for a node given its parents.
 - Handles continuous variables with binning strategies
 - Optimized for sparse parent configurations
 
-### `values(nodes: Tuple[str, ...]) -> np.ndarray`
+### `values(nodes: tuple[str, ...]) -> np.ndarray`
 
 Returns the actual data values for specified nodes.
 

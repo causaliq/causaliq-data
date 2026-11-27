@@ -8,7 +8,7 @@ Data preprocessing is often a critical step before applying causal discovery alg
 
 ## Functions
 
-### `remove_single_valued(bn, data) -> Tuple[BN, DataFrame, List[str]]`
+### `remove_single_valued(bn, data) -> tuple[BN, DataFrame, list[str]]`
 
 Removes nodes from a Bayesian Network that contain only a single unique value in the corresponding data. This is particularly useful when working with synthetic data or datasets where some variables have become constant due to filtering or other preprocessing steps.
 

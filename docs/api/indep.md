@@ -80,7 +80,7 @@ result = indep("A", "B", "C", None, bn=bn, N=10000)
 2. **File Path**: Path to CSV file (loaded automatically)
 3. **BN Parameters**: Uses conditional probability tables from Bayesian Network
 
-### `check_test_params(params) -> Dict[str, Any]`
+### `check_test_params(params) -> dict[str, Any]`
 
 Validates and standardizes independence test parameters.
 
@@ -117,7 +117,7 @@ print(params)  # {"alpha": 0.05}
 
 ## Internal Functions
 
-### `check_indep_args(...) -> Tuple[...]`
+### `check_indep_args(...) -> tuple[...]`
 
 Internal function that validates and standardizes all arguments for independence tests.
 
@@ -129,7 +129,7 @@ Internal function that validates and standardizes all arguments for independence
 - Column/node existence validation  
 - Sample size validation
 
-### `_statistic(actuals, type) -> Tuple[int, float]`
+### `_statistic(actuals, type) -> tuple[int, float]`
 
 Internal function that computes test statistics from contingency tables.
 

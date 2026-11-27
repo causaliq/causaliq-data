@@ -12,14 +12,14 @@ The core package requires data sources to implement this interface:
 
 ```python
 from abc import ABC, abstractmethod
-from typing import Dict, Tuple, Any
+from typing import Any
 import numpy as np
 
 class BNFit(ABC):
     """Abstract interface for data sources used in BN fitting."""
 
     @abstractmethod
-    def marginals(self, node: str, parents: Dict, values_reqd: bool = False) -> Tuple:
+    def marginals(self, node: str, parents: dict, values_reqd: bool = False) -> tuple:
         """Return marginal counts for a node and its parents.
 
         Args:
@@ -40,7 +40,7 @@ class BNFit(ABC):
         pass
 
     @abstractmethod
-    def values(self, columns: Tuple[str, ...]) -> np.ndarray:
+    def values(self, columns: tuple[str, ...]) -> np.ndarray:
         """Return the (float) values for the specified set of columns.
         
         Suitable for passing into e.g. linearRegression fitting function
@@ -69,7 +69,7 @@ class BNFit(ABC):
 
     @property
     @abstractmethod
-    def node_values(self) -> Dict[str, Dict]:
+    def node_values(self) -> dict[str, dict]:
         """Node value counts for categorical variables.
         
         Returns:

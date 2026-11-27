@@ -25,7 +25,7 @@ class Data(BNFit):
 
 ### Node Order Management
 
-#### `set_order(order: Tuple[str, ...]) -> None`
+#### `set_order(order: tuple[str, ...]) -> None`
 Sets the processing order of nodes to the specified sequence.
 
 **Arguments:**
@@ -35,7 +35,7 @@ Sets the processing order of nodes to the specified sequence.
 - `TypeError`: For invalid argument types
 - `ValueError`: If order contains invalid node names
 
-#### `get_order() -> Tuple[str, ...]`
+#### `get_order() -> tuple[str, ...]`
 Returns the current processing order using external node names.
 
 #### `randomise_order(seed: int) -> None`
@@ -46,7 +46,7 @@ Randomizes the processing order of nodes using the specified seed.
 
 ### Name Randomisation
 
-#### `randomise_names(seed: Optional[int]) -> None`
+#### `randomise_names(seed: int | None) -> None`
 Randomizes node names for sensitivity testing. When `seed=None`, reverts to original names.
 
 **Arguments:**
@@ -114,7 +114,7 @@ Determines the overall dataset type from individual node types. Sets `dstype` to
 - `CONTINUOUS`: If all variables are numeric  
 - `MIXED`: If variables are mixed types
 
-### `_generate_random_names(seed: Optional[int]) -> None`
+### `_generate_random_names(seed: int | None) -> None`
 Generates randomized external names for nodes using the format `X###NNNNNN` where:
 
 - `###` is a zero-padded random integer

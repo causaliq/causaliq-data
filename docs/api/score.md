@@ -66,7 +66,7 @@ SCORE_PARAMS = {
 
 ### Node Scoring
 
-#### `node_score(node, parents, types, params, data) -> Dict[str, float]`
+#### `node_score(node, parents, types, params, data) -> dict[str, float]`
 
 Computes specified score types for a single node given its parents.
 
@@ -99,7 +99,7 @@ Returns decomposable scores for a categorical node with specified parents.
 
 - Dictionary of scores, or tuple of (scores, counts_info) if counts_reqd=True
 
-#### `gaussian_node_score(node, parents, types, params, data) -> Dict[str, float]`
+#### `gaussian_node_score(node, parents, types, params, data) -> dict[str, float]`
 
 Computes Gaussian scores for continuous nodes.
 
@@ -174,7 +174,7 @@ Computes Bayesian-based scores for marginal counts of a single node.
 
 - Computed Bayesian score value
 
-#### `entropy_scores(Nijk, types, params, N, free_params) -> Dict[str, float]`
+#### `entropy_scores(Nijk, types, params, N, free_params) -> dict[str, float]`
 
 Returns entropy-based scores for marginal counts.
 
@@ -205,7 +205,7 @@ Computes Bayesian Gaussian Equivalent (BGE) score for a node.
 
 - BGE score value
 
-#### `entropy_gaussian_score(node, parents, params, data) -> Dict[str, float]`
+#### `entropy_gaussian_score(node, parents, params, data) -> dict[str, float]`
 
 Returns entropy-based scores for Gaussian nodes.
 
@@ -222,7 +222,7 @@ Returns entropy-based scores for Gaussian nodes.
 
 ### Utility Functions
 
-#### `check_score_params(params, scores=None) -> Dict[str, Any]`
+#### `check_score_params(params, scores=None) -> dict[str, Any]`
 
 Validates and completes score parameters with defaults.
 
